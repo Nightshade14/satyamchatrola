@@ -13,12 +13,15 @@ description: >
   </p>
   <p align="justify">
     Hello! I am Satyam Chatrola. I am pursuing MS in Computer Science at New York University (NYU).
-    <br><br>
-    As a Data Scientist and a Master's student in Computer Science at New York University, I am passionate about exploring and applying cutting-edge AI technologies, 
-    such as Transformers, Generative AI, and Large Language Models, to drive innovation and solve complex problems. At Rapidops Inc., I spearheaded the development of a smart face recognition-based 
-    attendance system, enhancing productivity tracking and authentication processes for 500+ employees. I also improved the AI-powered search and recommendation engine, using custom taggers 
-    and Learning To Rank (LTR) techniques to serve results in 10ms. Furthermore, I conducted R&D on deep learning models to translate natural language queries into SQL commands, 
-    enhancing database interaction. I received the 'Best Intern' award for my significant contributions to the recommendation system project, which integrated market basket analysis to 
-    boost user experiences and business revenue. 
-    <br><br>
+    <br>
+    As a Data Scientist (with 1+ year of experience) and a Master's student in Computer Science at New York University, I am passionate about exploring and applying cutting-edge AI technologies, such as Transformers, Generative AI, and Large Language Models, to drive innovation and solve complex problems.<br> 
+  </p>
+
+  <p align="justify">
+    <ul>Skills:
+      <li> AI and Big Data: Python, TensorFlow, PyTorch, Generative AI, Recommendation and Search Systems, Diffusion Models, Transformers, LLMs with RAG,<br>
+      Prompt Engineering, Computer Vision, Natural Language Processing, PySpark, Hadoop, OpenCV, dlib.</li>
+      <li>Web Technologies and Databases: HTML/CSS, JavaScript, NodeJS, REST APIs, MongoDB, PostgreSQL, Apache Solr.</li>
+      <li>Others: SQL, Git, Google Cloud Platform, C/C++, Java, System Design, Power BI.</li>
+    </ul>
   </p>
