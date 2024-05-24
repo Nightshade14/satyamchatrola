@@ -22,14 +22,14 @@ description:
   <br><br>
   </p>
 
-  <p>
-    <ul>Skills:
-      <li> AI and Big Data: Python, TensorFlow, PyTorch, Generative AI, Recommendation and Search Systems, Diffusion Models, Transformers, LLMs with RAG,<br>
-      Prompt Engineering, Computer Vision, Natural Language Processing, PySpark, Hadoop, OpenCV, dlib.</li>
-      <li>Web Technologies and Databases: HTML/CSS, JavaScript, NodeJS, REST APIs, MongoDB, PostgreSQL, Apache Solr.</li>
-      <li>Others: SQL, Git, Google Cloud Platform, C/C++, Java, System Design, Power BI.</li>
-    </ul>
-  </p>
+  # <p>
+  #   <ul>Skills:
+  #     <li> AI and Big Data: Python, TensorFlow, PyTorch, Generative AI, Recommendation and Search Systems, Diffusion Models, Transformers, LLMs with RAG,<br>
+  #     Prompt Engineering, Computer Vision, Natural Language Processing, PySpark, Hadoop, OpenCV, dlib.</li>
+  #     <li>Web Technologies and Databases: HTML/CSS, JavaScript, NodeJS, REST APIs, MongoDB, PostgreSQL, Apache Solr.</li>
+  #     <li>Others: SQL, Git, Google Cloud Platform, C/C++, Java, System Design, Power BI.</li>
+  #   </ul>
+  # </p>
   
 theme: jekyll-theme-minimal
 # google_analytics: UA-145578661-1 # Google Analytics tracking ID
