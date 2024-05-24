@@ -1,0 +1,35 @@
+title: <p align="center"> Satyam Chatrola </p>
+
+logo: "/images/satyam_headshot.png?raw=true"
+
+description:
+  <p align="center">
+  <a href="pdf/Satyam Chandrakant Chatrola Resume.pdf">Resume</a> |
+  <a href="www.linkedin.com/in/satyamchatrola">LinkedIn</a> |
+  <a href="https://github.com/Nightshade14">GitHub</a> |
+  <a href="cloudskillsboost.google/public_profiles/8f8d70ce-809c-45e2-b6ba-022e3bc4cf9f">Google Cloud Profile</a>
+  </p>
+  
+  <p align="justify">
+  Hello! I am Satyam Chatrola. I am pursing MS in Computer Science at New York University (NYU).
+  <br><br>
+ As a Data Scientist and a Master's student in Computer Science at New York University, I am passionate about exploring and applying cutting-edge AI technologies, 
+ such as Transformers, Generative AI, and Large Language Models, to drive innovation and solve complex problems. At Rapidops Inc., I spearheaded the development of a smart face recognition-based 
+ attendance system, enhancing productivity tracking and authentication processes for 500+ employees. I also improved the AI-powered search and recommendation engine, using custom taggers 
+ and Learning To Rank (LTR) techniques to serve results in 10ms. Furthermore, I conducted R&D on deep learning models to translate natural language queries into SQL commands, 
+ enhancing database interaction. I received the 'Best Intern' award for my significant contributions to the recommendation system project, which integrated market basket analysis to 
+ boost user experiences and business revenue. 
+  <br><br>
+  </p>
+
+  <p>
+    <ul>Skills:
+      <li> AI and Big Data: Python, TensorFlow, PyTorch, Generative AI, Recommendation and Search Systems, Diffusion Models, Transformers, LLMs with RAG,<br>
+      Prompt Engineering, Computer Vision, Natural Language Processing, PySpark, Hadoop, OpenCV, dlib.</li>
+      <li>Web Technologies and Databases: HTML/CSS, JavaScript, NodeJS, REST APIs, MongoDB, PostgreSQL, Apache Solr.</li>
+      <li>Others: SQL, Git, Google Cloud Platform, C/C++, Java, System Design, Power BI.</li>
+    </ul>
+  </p>
+  
+theme: jekyll-theme-minimal
+# google_analytics: UA-145578661-1 # Google Analytics tracking ID
