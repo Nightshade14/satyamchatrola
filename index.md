@@ -2,7 +2,7 @@
 
 
 ## Automated Essay Evaluation with fine-tuned transformers and fine-tuned open-source LLMs like GPT-2.
-[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/chriskhanhtran/CS224n-NLP-Solutions/tree/master/assignments/)
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Fined-tuned-LLM-like-GPT2-and-Transformers-based-Automated-Essay-Evaluation)
 
 <div style="text-align: justify">Essays represent a person's critical thinking. It provides a glimpse into a person's mind. This serves as an approach to cultivate thoughts and ideas, and also a way to evaluate a person. This method is used by academia and educational institutions. Essay evaluation has been performed manually by humans; which is subject to many factors and could lead to inconsistency.<br><br>
 
@@ -10,7 +10,7 @@ So, the project explores ways to automate essay evaluation with Transformers lik
 
 
 ## Migrating NYU Vida Lab's Wildlife Trafficking Prevention Project Pipeline onto Apache PySpark.
-[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/chriskhanhtran/facebook-detect-food-trends)
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/NYU-VIDA-Wildlife-Pipeline)
 
 <div style="text-align: justify">The global wildlife trafficking industry is valued between $7 billion and $23 billion annually. Wildlife crime is estimated to cause a loss of $1 trillion to the global economy annually, considering the environmental damage, loss of biodiversity, and impact on local economies. In order to prevent the selling of illegally trafficed animal parts and products, NYU's Vida Lab is working on a project to identify these animal products, selling on the internet. This can be used to take necessary actions to identify the seller of such products. <br><br>
 
@@ -18,7 +18,7 @@ The project uses machine learning based and rules based crawling and extraction 
 
 
 ## Training Generative Adversarial Network (GAN) to generate images of clothes.
-[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/chriskhanhtran/CS224n-NLP-Solutions/tree/master/assignments/)
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Training-GAN-to-generate-clothes)
 
 <div style="text-align: justify">Generative Adversarial Networks is a result of two different models trying to outperform each other. GANs create images from random noise provided to them. The Generator tries to outperform the Discriminator and the Discriminator tries to outperform Generator. To train GANs, it is imperative that GANs reach a Saddle point. The Saddle point provides an equilibrium between Discriminator and Generator.<br><br>
 
@@ -26,7 +26,7 @@ The project uses a deep convolutional generative adversarial network. It has 2 c
 
 
 ## Leveraging custom Deep Residual Convolutional Networks under 5M parameters to classify images into 10 categories.
-[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/chriskhanhtran/CS224n-NLP-Solutions/tree/master/assignments/)
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Deep-Residual-Convolutional-Network)
 
 <div style="text-align: justify">Conventional Deep Neural Networks have multiple layers. After a certain depth, the model starts suffering from issues like vanishing / exploding gradients, overfitting, etc. By leveraging Residual Connections / skip Connections, we can create deeper networks without overfitting. Additionally, the <b>improved gradient flow and regularization</b> also aids with the cause.<br><br>
 
@@ -34,7 +34,7 @@ The project uses a Deep Residual Convolutional Neural Network for identiying 10 
 
 
 ## AI based classification of New York City Open-Source Noise data into 10 categories. 
-[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/chriskhanhtran/CS224n-NLP-Solutions/tree/master/assignments/)
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/AI-based-identification-of-New-York-City-Open-Source-Noise-data)
 
 <div style="text-align: justify">New York City is a metropolitan city with numerous sources for noise pollution. These noise levels are harmful to hearing health of people. For instance, it has been estimated that 9 out of 10 adults in New York City (NYC) are exposed to excessive noise levels, i.e., beyond the limit of what the EPA considers to be harmful. When applied to U.S. cities of more than 4 million inhabitants, such estimates extend to over 72 million urban residents. So, it is important to identify noise sources to mitigate it. The noise data was sourced by NYU’s Music and Audio Research Lab; funded by NYU’s Centre for Urban Science.<br><br>
 
@@ -42,7 +42,7 @@ The project leverages multiple Machine Learning and Deep Learning techniques to 
 
 
 ## End to End web-app: Personal Health Assistant for Diabetics.
-[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/chriskhanhtran/detect-spam-messages-nlp/blob/master/detect-spam-nlp.ipynb)
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Personal-Health-Assistant-for-Diabetics)
 
 <div style="text-align: justify">As of 2021, approximately 537 million adults (20-79 years) worldwide have diabetes. This number is expected to rise to 643 million by 2030 and 783 million by 2045. Type 2 Diabetes accounts for about 90-95% of all diabetes cases. It is primarily related to lifestyle factors and genetic predisposition. The global economic cost of diabetes in 2021 was estimated at $966 billion, a 316% increase over the past 15 years. Diabetes is a leading cause of death, responsible for approximately 6.7 million deaths in 2021, equating to 1 death every 5 seconds.<br><br>
 
