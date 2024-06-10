@@ -41,7 +41,7 @@ The project uses a Deep Residual Convolutional Neural Network for identiying 10 
 The project leverages multiple Machine Learning and Deep Learning techniques to identify noise categories with 86% accuracy. The project uses Deep Convolutional Network to understand and classify audio data. By leveraging this project, one can identify the noise sources in the city. This project can be extended to real-time identification by placing noise sensing devices across the city and that data can be leveraged to re-position appropriate officials to minimize noise pollution.</div><br>
 
 
-## End to End web-app: Personal Health Assistant for Diabetics.
+## End to End web-app: Personal Health Assistant for Diabetics hosted with auto-deployment on Heroku.
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Personal-Health-Assistant-for-Diabetics)
 
 <div style="text-align: justify">As of 2021, approximately 537 million adults (20-79 years) worldwide have diabetes. This number is expected to rise to 643 million by 2030 and 783 million by 2045. Type 2 Diabetes accounts for about 90-95% of all diabetes cases. It is primarily related to lifestyle factors and genetic predisposition. The global economic cost of diabetes in 2021 was estimated at $966 billion, a 316% increase over the past 15 years. Diabetes is a leading cause of death, responsible for approximately 6.7 million deaths in 2021, equating to 1 death every 5 seconds.<br><br>
