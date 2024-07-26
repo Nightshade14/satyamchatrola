@@ -7,7 +7,7 @@ baseurl: "/satyamchatrola"
 repository: "Nightshade14/satyamchatrola"
 
 
-description: >
+description:
   <p align="center">
     <a href="pdf/Satyam Chandrakant Chatrola Resume.pdf">Resume</a> |
     <a href="https://www.linkedin.com/in/satyamchatrola">LinkedIn</a> |
@@ -16,7 +16,7 @@ description: >
     <a href="https://cloudskillsboost.google/public_profiles/8f8d70ce-809c-45e2-b6ba-022e3bc4cf9f">Google Cloud Profile</a>
   </p>
   <p align="justify">
-    Hello! I am Satyam Chatrola. I am a Machine Learning Engineer and a MS in CS student at New York University (NYU). I am passionate about exploring and applying cutting-edge AI technologies, such as Transformers, Generative AI, and Large Language Models, to drive innovation and solve complex problems. I leverage the principles of Software Engineering and combine them with Machine Learning Solutions and MLOps principles (with CI/CD) to deliver efficient, scalable and robust End to End AI Solution.
+    Hello! I am Satyam Chatrola. I am a Machine Learning Engineer and a MS in CS student at New York University (NYU). I am passionate about building AI-based systems to drive innovation and solve complex problems. I leverage the principles of Software Engineering and combine them with Machine Learning Solutions and MLOps principles (with CI/CD) to deliver efficient, scalable and robust End to End AI Solution.
     <br><br>
     As a Data Scientist (with 1.5+ year of experience), I have worked on AI-powered Recommendation and Search System and have delivered dependable solutions driving business growth. I led the development of an AI-based Face Recognition, Productivity System and have collaborated with cross-functional teams and stakeholders to productionize the system. <br> 
   </p>
