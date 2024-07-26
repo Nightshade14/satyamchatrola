@@ -39,11 +39,8 @@ jobs:
       env:
         JEKYLL_ENV: production
 
-    - name: List _site directory for debugging
-      run: ls -la _site
-
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v3
       with:
         name: github-pages
         path: _site
@@ -54,7 +51,7 @@ jobs:
 
     steps:
     - name: Deploy to GitHub Pages
-      uses: actions/deploy-pages@v1
+      uses: actions/deploy-pages@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifact_name: github-pages
