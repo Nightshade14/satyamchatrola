@@ -42,13 +42,23 @@ jobs:
       with:
         ref: gh-pages
 
+    - name: List files before clearing old files
+      run: ls -la
+
     - name: Clear old files
       run: |
-        rm -rf *
-        rm -rf .*
+        find . -mindepth 1 -delete
+
+    - name: List files after clearing old files
+      run: ls -la
 
     - name: Copy new files
-      run: cp -r ../_site/* .
+      run: |
+        cp -r ../_site/* .
+        cp -r ../_site/.* .
+
+    - name: List files after copying new files
+      run: ls -la
 
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main'
