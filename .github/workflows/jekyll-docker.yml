@@ -6,16 +6,15 @@ on:
       - main
 
 permissions:
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -30,10 +29,31 @@ jobs:
     - name: Build Jekyll site
       run: bundle exec jekyll build
 
-    - name: Debug Build
+    - name: List build files for debugging
       run: ls -la _site
 
-    - name: Deploy to GitHub Pages
-      uses: actions/deploy-pages@v4
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout gh-pages branch
+      uses: actions/checkout@v2
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: gh-pages
+
+    - name: Clear old files
+      run: |
+        rm -rf *
+        rm -rf .*
+
+    - name: Copy new files
+      run: cp -r ../_site/* .
+
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: ./
