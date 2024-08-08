@@ -1,5 +1,5 @@
-<h1 align="center">Hi 👋, I'm Satyam Chatrola</h1>
-<h3 align="center">As a Data Scientist and a Master's student in Computer Science at New York University, I am passionate about exploring and applying cutting-edge AI technologies, such as Transformers, Generative AI, and Large Language Models, to drive innovation and solve complex problems.</h3>
+<h1 align="center">Hi 👋, I'm Satyam Chatrola - A Software Engineer who fell in love with ML</h1>
+<h3 align="center">I am a Machine Learning Engineer and a Computer Science grad student at New York University. I am passionate about exploring and applying cutting-edge AI technologies, such as Transformers, Generative AI, and Large Language Models, to drive innovation and solve complex problems.</h3>
 
 <p align="left"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=nightshade14" alt="nightshade14" /></a> </p>
 
