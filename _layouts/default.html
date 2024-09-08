@@ -9,8 +9,6 @@
   {% seo %}
   <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
 
-</head>
-
 <body>
   <div class="wrapper">
     <header>
@@ -34,6 +32,7 @@
       {{ content }}
     </section>
   </div>
+
   <script src="{{ '/assets/js/scale.fix.js' | relative_url }}"></script>
   {% if site.google_analytics %}
   <script>
@@ -48,5 +47,18 @@
   </script>
   {% endif %}
 </body>
+
+
+
+<style>
+  body {
+    padding: 12px;
+  }
+  #mylink{
+    margin-bottom: 12px;
+  }
+</style>
+
+</head>
 
 </html>
