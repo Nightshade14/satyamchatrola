@@ -1,4 +1,4 @@
-title: "<p align=\"center\"> Satyam Chatrola </p>"
+title: "<h1 align=center> Satyam Chatrola </h1>"
 
 logo: "/images/satyam_headshot.png?raw=true"
 
@@ -8,7 +8,7 @@ repository: "Nightshade14/satyamchatrola"
 
 
 description:
-  <p align="center">
+  <p align="center" id="mylink">
     <a href="pdf/Satyam_Chandrakant_Chatrola_Resume.pdf">Resume</a> |
     <a href="https://www.linkedin.com/in/satyamchatrola">LinkedIn</a> |
     <a href="https://www.github.com/Nightshade14">GitHub</a> |
@@ -16,10 +16,10 @@ description:
     <a href="pdf/Satyam Chatrola Research Paper.pdf">Research Paper</a> |
     <a href="https://cloudskillsboost.google/public_profiles/8f8d70ce-809c-45e2-b6ba-022e3bc4cf9f">Google Cloud Profile</a>
   </p>
-  <p align="justify">
+  <p align="justify" id="mycontent">
     Hello! I am Satyam Chatrola. I am a Machine Learning Engineer and a MS in CS student at New York University (NYU). As a Machine Learning Engineer (with 1.5+ year of experience), I develop end to end planet scale AI systems by leveraging the principles of Software Engineering and combine them with Machine Learning Solutions and MLOps principles (with CI/CD) to deliver efficient, scalable and robust solutions.
     <br><br>
-    Professionally, I have led Face-based Authentication and Authorization project with a team of 2. It had 4 different environments with 2 access points. We devised a solution that wouldn't need re-training of AI models for newly added people and it worked with low-latency on real-time video data. I also have experience with Search systems and Hybrid Recommenders (Collaborative, Content-based and Market Basket Analysis).
+    Professionally, I have led Face-based Authentication and Authorization project with a team of 2 with 4 different environments with 2 access points. We devised a solution that wouldn't need re-training of AI models for newly added people and it worked with low-latency on real-time video data. I also have experience with Search systems and Hybrid Recommenders (Collaborative, Content-based and Market Basket Analysis).
   </p>
 
 
