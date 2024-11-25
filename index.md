@@ -5,10 +5,23 @@ title: "Home"
 
 # Projects
 
+## RAG Microservice: Research-mate chatbot
 
-## Automated Essay Evaluation with fine-tuned transformers and fine-tuned open-source LLMs like GPT-2.
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/research-mate)
+
+<div style="text-align: justify">
+
+<em>Technologies: Python, FastAPI, PyTorch, Transformers, AWS, Pinecone, Contextual RAG, Llamma 3.2 8B, chat UI frontend</em><br>
+
+LLMs introduced AI models with good general reasoning and intelligence. They are trained on public data. So, they do not have knowledge about one's private data. What if we can teach the LLM about private data? Augmenting LLMs with private data introduces large amount of possibilities. For instance, this project enables LLMs to learn about our collection of research papers and then answer queries about that research paper. We can also use it to find the relevant research papers that one asks for.<br>
+
+The project is a <b>context-aware RAG-based chatbot</b> leveraging Pinecone vector database, enabling <b>semantic search</b> across 2,700 research papers with <b> 95% query relevance</b> and reducing response time to seconds. It leverages <b>Anthropic AIs</b> latest research on RAG which is <b>Contextual Retrieval</b>. It is optimized for model performance with <b>Binary Quantization</b>, achieving <b>7x speedup in inference time</b> and <b>85% reduction in memory</b>. As the data size increases, the the embeddings would out-grow the memory size and disk IO for matching is orders of magnitude slower than in-memory operations. So, we decrease the storage amount of embeddings while keeping them relevant to make them store in memory for fast matching and low inference latency. The project plans to improve upon <b>ElasticSearch</b>'s beta feature: <b>Better Binary Quantization (BBQ)</b> which provides better savings but at a more harsh <b>memory-recall trade-off</b>.</div><br>
+
+
+
+## Microservice: Automated Essay Evaluation with fine-tuned transformers and fine-tuned open-source LLMs like GPT-2.
+
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Fined-tuned-LLM-like-GPT2-and-Transformers-based-Automated-Essay-Evaluation)
-
 
 <div style="text-align: justify">
 
@@ -19,7 +32,23 @@ Essays represent a person's critical thinking. It provides a glimpse into a pers
 So, the project explores ways to automate essay evaluation with Transformers like BERT, DeBERTa-v3 and Large Language Models (LLMs) like GPT-2. By automating this task, we can reduce many hours of human labour, mental fatigue, evaluation time and errors in evaluation. We leveraged multiple <b>Parameter Efficient Fine Tuning (PEFT)</b> techniques to fine-tune LLMs on small amount of data. We used many other Transfer Learning techniques to find a good set of parameters fine-tuned on our dataset. Along with these techniques, the project also used <b>dynamic learning rate</b> with <b>cosine annealing</b> and <b>warm-up</b>. The project uses <b>Cohen's Kappa score</b> as a metric to evaluate the model. With all these techniques, the model achieved an impressive Kappa score of 81.7.</div><br>
 
 
-## Migrating NYU Vida Lab's Wildlife Trafficking Prevention Project Pipeline onto Apache PySpark.
+
+## Open Source Project: mAIgic
+
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/mAIgic-nyu/tree/conv2_v2)
+
+<div style="text-align: justify">
+
+<em>Technologies: Python, OpenAI Function Calling, CircleCI, Pytest, MyPy, Ruff, uv</em><br>
+
+LLMs introduced AI models with good general reasoning and intelligence. They are trained on public data. So, they do not have knowledge about one's private data. What if we can teach the LLM about private data? <b>Augmenting LLMs with private data</b> introduces large amount of possibilities. For instance, this project enables LLMs to learn about emails and extract meaningful tasks from them and add them to a Trello board. This also creates a private and query-able knowledge base. The project plans to extend functionalities by adding more tools and functionalities.<br>
+
+mAIgic is a smart AI assistant with generalized knowledge and reasoning capabilities. The project leverages <b>OpenAI’s function calling</b>, achieving <b>95% accuracy in task extraction</b> and automated Trello board updates, <b>reducing manual email processing time by 70%</b>. This is a AI-software project, engineered with a <b>production-grade Python API</b> with <b>100% test coverage</b> through <b>CircleCI pipeline</b>, implementing comprehensive <b>static type checking with mypy</b>, and leveraged <b>SQLite</b>-based conversation tracking system. The project uses a modern Rust-based python package manager called uv for efficient dependency and package management.
+
+
+
+## Open Source Project: Migrating NYU Vida Lab's Wildlife Trafficking Prevention Project Pipeline onto Apache PySpark.
+
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/NYU-VIDA-Wildlife-Pipeline)
 
 <div style="text-align: justify">
@@ -30,8 +59,8 @@ The global wildlife trafficking industry is valued between $7 billion and $23 bi
 
 The project uses machine learning based and rules based crawling and extraction of the internet in-order to find relevant data. Then it uses a zero-shot, multi-modal, AI model to identify the products. It also uses AI to generated clean data. This whole data ETL pipeline was not scalable. So, we scaled the complete data pipeline by migrating it onto Apache Spark with PySpark. This made the pipeline more robust and faster. With our efforts, we achieved <b>160% speedup</b>.</div><br>
 
-
 ## Training Generative Adversarial Network (GAN) to generate images of clothes.
+
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Training-GAN-to-generate-clothes)
 
 <div style="text-align: justify">
@@ -42,8 +71,8 @@ Generative Adversarial Networks is a result of two different models trying to ou
 
 The project uses a deep convolutional generative adversarial network. It has 2 convolutional layers and uses activation functions like <b>LeakyRelu and Tanh</b>. By observing the training progress of the GAN, the losses of Generator and Discriminator <b>converges smoothly</b>. This indicates that the model has found the <b>saddle point</b>.</div><br>
 
-
 ## Leveraging custom Deep Residual Convolutional Networks under 5M parameters to classify images into 10 categories.
+
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Deep-Residual-Convolutional-Network)
 
 <div style="text-align: justify">
@@ -54,8 +83,8 @@ Conventional Deep Neural Networks have multiple layers. After a certain depth, t
 
 The project uses a Deep Residual Convolutional Neural Network for identiying 10 types of RGB images. The images were RGB and of low resolution of 32x32 pixels. And on top of it, we did not use any pre-trained weights like of the imagenet dataset. We employed multiple data augmentation and feature enhancing transformations on the image. The model has around 4.7M parameters. The model is good balance between deep and shallow networks. So, it performs better on new images while still remembering the training images. <b>Dropouts and L2 regularization</b> also helps with the overfitting issue. The model has an accuracy of 81%. </div><br>
 
+## AI based classification of New York City Open-Source Noise data into 10 categories.
 
-## AI based classification of New York City Open-Source Noise data into 10 categories. 
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/AI-based-identification-of-New-York-City-Open-Source-Noise-data)
 
 <div style="text-align: justify">
@@ -66,8 +95,8 @@ New York City is a metropolitan city with numerous sources for noise pollution. 
 
 The project leverages multiple Machine Learning and Deep Learning techniques to identify noise categories with 86% accuracy. The project uses Deep Convolutional Network to understand and classify audio data. By leveraging this project, one can identify the noise sources in the city. This project can be extended to real-time identification by placing noise sensing devices across the city and that data can be leveraged to re-position appropriate officials to minimize noise pollution.</div><br>
 
-
 ## End to End Flask web-app: Personal Health Assistant for Diabetics hosted with auto-deployment on Heroku.
+
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/Nightshade14/Personal-Health-Assistant-for-Diabetics)
 
 <div style="text-align: justify">
