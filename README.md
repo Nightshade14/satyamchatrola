@@ -1,17 +1,45 @@
-<h1 align="center">Hi 👋, I'm Satyam Chatrola - A Software Engineer specialized in ML and AI.</h1>
-<h3 align="justify">Welcome to my digital space! I'm Satyam Chatrola, a Machine Learning Engineer and NYU Computer Science graduate with a passion for building AI-driven solutions that deliver measurable business impact. My journey in technology spans from developing hyper-personalized search systems serving 5M+ SKUs to architecting facial recognition systems with 0.96 F1 scores across 750+ profiles. With specialized expertise in Large Language Models, Recommendation Systems, and Computer Vision, I've consistently transformed complex AI concepts into scalable, production-ready applications that drive significant metrics improvements—including a 7.2% conversion lift and 34% CTR surge through personalized recommendation strategies.</h3>
-<h3 align="justify">Beyond my professional experience, I'm deeply committed to open-source contributions and cutting-edge research in AI. My work includes developing RAG-based research assistants, fine-tuning transformers for automated essay scoring that surpassed benchmarks by 5.7%, and creating email automation systems that reduce processing time by 70%. As a 1st Runner Up in the Qualcomm x Microsoft Edge AI Hackathon and an AWS-certified Machine Learning Engineer, I bring both theoretical knowledge and practical implementation skills to every challenge. I thrive at the intersection of performance optimization and innovative AI applications—whether that's achieving 7x inference speedups through quantization techniques or designing microservices that leverage low-latency inference for real-world applications.</h3></br>
+<h1 align="center">Satyam Chatrola</h1>
 
+<h2>Background & Education</h2>
+<ul>
+  <li>Machine Learning Engineer</li>
+  <li>NYU Computer Science graduate</li>
+  <li>AWS-certified Machine Learning Engineer</li>
+  <li>1st Runner Up in Qualcomm x Microsoft Edge AI Hackathon</li>
+</ul>
 
-<p align="left"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=nightshade14" alt="nightshade14" /></a> </p>
+<h2>Technical Expertise</h2>
+<ul>
+  <li><strong>Specialized Areas:</strong> Large Language Models, Recommendation Systems, Computer Vision</li>
+  <li><strong>Core Strength:</strong> Transforming complex AI concepts into scalable, production-ready applications</li>
+</ul>
 
-<h3 align="left">Connect with me:</h3>
-<p align="left">
-<a href="https://www.linkedin.com/in/satyamchatrola/" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="https://www.linkedin.com/in/satyamchatrola/" height="30" width="40" /></a>
-<a href="https://kaggle.com/satyamchatrola" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/kaggle.svg" alt="satyamchatrola" height="30" width="40" /></a>
-</p>
+<h2>Professional Achievements</h2>
+<ul>
+  <li>Developed hyper-personalized search systems serving 5M+ SKUs</li>
+  <li>Architected facial recognition systems achieving 0.96 F1 scores across 750+ profiles</li>
+  <li>Delivered 7.2% conversion lift through personalized recommendation strategies</li>
+  <li>Increased Click-Through Rate (CTR) by 34% with AI-driven personalization</li>
+  <li>Achieved 7x inference speedups using quantization techniques</li>
+</ul>
 
-<h3 align="left">Languages and Tools:</h3>
-<p align="left"> <a href="https://www.cprogramming.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/c/c-original.svg" alt="c" width="40" height="40"/> </a> <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="css3" width="40" height="40"/> </a> <a href="https://d3js.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/d3js/d3js-original.svg" alt="d3js" width="40" height="40"/> </a> <a href="https://www.docker.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="40" height="40"/> </a> <a href="https://www.elastic.co" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/elastic/elastic-icon.svg" alt="elasticsearch" width="40" height="40"/> </a> <a href="https://expressjs.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/express/express-original-wordmark.svg" alt="express" width="40" height="40"/> </a> <a href="https://flask.palletsprojects.com/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/pocoo_flask/pocoo_flask-icon.svg" alt="flask" width="40" height="40"/> </a> <a href="https://cloud.google.com" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/google_cloud/google_cloud-icon.svg" alt="gcp" width="40" height="40"/> </a> <a href="https://git-scm.com/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="git" width="40" height="40"/> </a> <a href="https://hadoop.apache.org/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/apache_hadoop/apache_hadoop-icon.svg" alt="hadoop" width="40" height="40"/> </a> <a href="https://heroku.com" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/heroku/heroku-icon.svg" alt="heroku" width="40" height="40"/> </a> <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="html5" width="40" height="40"/> </a> <a href="https://www.java.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="java" width="40" height="40"/> </a> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="javascript" width="40" height="40"/> </a> <a href="https://www.linux.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/linux/linux-original.svg" alt="linux" width="40" height="40"/> </a> <a href="https://www.mongodb.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mongodb/mongodb-original-wordmark.svg" alt="mongodb" width="40" height="40"/> </a> <a href="https://www.mysql.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original-wordmark.svg" alt="mysql" width="40" height="40"/> </a> <a href="https://nodejs.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nodejs/nodejs-original-wordmark.svg" alt="nodejs" width="40" height="40"/> </a> <a href="https://opencv.org/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/opencv/opencv-icon.svg" alt="opencv" width="40" height="40"/> </a> <a href="https://pandas.pydata.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/2ae2a900d2f041da66e950e4d48052658d850630/icons/pandas/pandas-original.svg" alt="pandas" width="40" height="40"/> </a> <a href="https://www.postgresql.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="postgresql" width="40" height="40"/> </a> <a href="https://postman.com" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg" alt="postman" width="40" height="40"/> </a> <a href="https://www.python.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="40" height="40"/> </a> <a href="https://pytorch.org/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/pytorch/pytorch-icon.svg" alt="pytorch" width="40" height="40"/> </a> <a href="https://scikit-learn.org/" target="_blank" rel="noreferrer"> <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Scikit_learn_logo_small.svg" alt="scikit_learn" width="40" height="40"/> </a> <a href="https://seaborn.pydata.org/" target="_blank" rel="noreferrer"> <img src="https://seaborn.pydata.org/_images/logo-mark-lightbg.svg" alt="seaborn" width="40" height="40"/> </a> <a href="https://lucene.apache.org/solr/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/apache_solr/apache_solr-icon.svg" alt="solr" width="40" height="40"/> </a> <a href="https://www.tensorflow.org" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/tensorflow/tensorflow-icon.svg" alt="tensorflow" width="40" height="40"/> </a> </p>
+<h2>Research & Open-Source Work</h2>
+<ul>
+  <li>Developed RAG-based research assistants</li>
+  <li>Fine-tuned transformers for automated essay scoring (exceeded benchmarks by 5.7%)</li>
+  <li>Created email automation systems reducing processing time by 70%</li>
+  <li>Designed microservices leveraging low-latency inference for real-world applications</li>
+</ul>
 
-<p><img align="center" src="https://github-readme-stats.vercel.app/api/top-langs?username=nightshade14&show_icons=true&locale=en&layout=compact" alt="nightshade14" /></p>
+<h2>Professional Focus</h2>
+<ul>
+  <li>Building AI-driven solutions with measurable business impact</li>
+  <li>Performance optimization for AI applications</li>
+  <li>Bridging theoretical AI knowledge with practical implementation</li>
+</ul>
+
+<h2>Connect With Me</h2>
+<ul>
+  <li><a href="https://www.linkedin.com/in/satyamchatrola/" target="blank">LinkedIn</a></li>
+  <li><a href="https://kaggle.com/satyamchatrola" target="blank">Kaggle</a></li>
+</ul>
