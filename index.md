@@ -11,7 +11,7 @@ title: "Home"
 
 <div style="text-align: justify">
 
-<em>Technologies: Python, FastAPI, PyTorch, Transformers, GCP, Pinecone, Prompt Engineering, Llamma 3.2, chat UI frontend</em><br><br>
+<em>Technologies: Python, FastAPI, PyTorch, Transformers, GCP, Pinecone, Prompt Engineering, Llamma 3, chat UI frontend</em><br><br>
 
 LLMs introduced AI models with good general reasoning and intelligence. They are trained on public data. So, they do not have knowledge about one's private data. What if we can teach the LLM about private data? Augmenting LLMs with private data introduces large amount of possibilities. For instance, this project enables LLMs to learn about our collection of research papers and then answer queries about that research paper. We can also use it to find the relevant research papers.<br><br>
 
