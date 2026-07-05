@@ -1,7 +1,10 @@
 ---
-// Real-time 3D GPU hero visual — procedurally modeled (no external assets).
-// Spinning fans, particle intake airflow drawn into the fans, blue→cyan
-// compute pulses, and bloom glow. Lazy-loaded and fully guarded.
+// Photoreal 3D GPU hero. Loads a real .glb model, lights it with an HDRI
+// studio environment (accurate metal reflections), auto-centers/scales/frames
+// it, and floats it with pointer parallax. Lazy-loaded; falls back to a quiet
+// ambient field if no model is present or WebGL is unavailable.
+//
+// Drop your model at: public/models/gpu.glb   (Draco / Meshopt supported)
 ---
 
 <div class="gpu-stage" id="gpu-stage" aria-hidden="true" data-reveal style="--reveal-delay: 220ms">
@@ -9,10 +12,12 @@
 </div>
 
 <script>
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const MODEL_URL = `${BASE}/models/geforce_rtx_3080_graphics_card.glb`;
+  const HDRI_URL = `${BASE}/hdri/studio.hdr`;
+
   const stage = document.getElementById('gpu-stage');
   if (stage) {
-    // Defer the heavy 3D bundle until the hero is on screen and the browser is idle,
-    // so first paint is never blocked. Falls back gracefully everywhere.
     const kickoff = () => {
       const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
       idle(() => boot(stage));
@@ -32,9 +37,14 @@
     if (booted) return;
     booted = true;
 
-    let THREE, EffectComposer, RenderPass, UnrealBloomPass, OutputPass;
+    let THREE, GLTFLoader, DRACOLoader, RGBELoader, MeshoptDecoder;
+    let EffectComposer, RenderPass, UnrealBloomPass, OutputPass;
     try {
       THREE = await import('three');
+      ({ GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'));
+      ({ DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js'));
+      ({ RGBELoader } = await import('three/addons/loaders/RGBELoader.js'));
+      ({ MeshoptDecoder } = await import('three/addons/libs/meshopt_decoder.module.js'));
       ({ EffectComposer } = await import('three/addons/postprocessing/EffectComposer.js'));
       ({ RenderPass } = await import('three/addons/postprocessing/RenderPass.js'));
       ({ UnrealBloomPass } = await import('three/addons/postprocessing/UnrealBloomPass.js'));
@@ -45,7 +55,7 @@
     }
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const CYAN = 0x22d3ee, BLUE = 0x2f6bff, DEEP = 0x1746b0;
+    const finePointer = window.matchMedia('(pointer: fine)').matches;
 
     let width = stage.clientWidth || 480;
     let height = stage.clientHeight || 420;
@@ -62,275 +72,268 @@
     renderer.setPixelRatio(DPR);
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.95;
     renderer.domElement.classList.add('gpu-canvas');
     stage.appendChild(renderer.domElement);
-    stage.classList.add('gpu-live');
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 100);
-    // high 3/4 product-shot angle so the spinning fans face the camera
-    camera.position.set(3.4, 5.2, 6.6);
-    camera.lookAt(0, 0.2, 0);
+    const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 100);
+    camera.position.set(0, 0, 9);
+    camera.lookAt(0, 0, 0);
 
-    // ---------- lighting ----------
-    scene.add(new THREE.AmbientLight(0x1a2740, 1.15));
-    const key = new THREE.DirectionalLight(0xcdeeff, 2.4);
-    key.position.set(5, 9, 5);
+    // ---------- HDRI environment (accurate reflections on metal) ----------
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    new RGBELoader().load(HDRI_URL, (hdr) => {
+      const env = pmrem.fromEquirectangular(hdr).texture;
+      scene.environment = env;
+      hdr.dispose();
+    });
+
+    // a soft key light + cool rim/underglow (the glow accent) so the card reads
+    const key = new THREE.DirectionalLight(0xffffff, 1.3);
+    key.position.set(4, 6, 6);
     scene.add(key);
-    const fill = new THREE.DirectionalLight(0x8fb3ff, 0.7);
-    fill.position.set(-2, 3, 8);
-    scene.add(fill);
-    const rimBlue = new THREE.PointLight(BLUE, 60, 30);
-    rimBlue.position.set(-5, 2, -3);
-    scene.add(rimBlue);
-    const rimCyan = new THREE.PointLight(CYAN, 45, 30);
-    rimCyan.position.set(5, -1, 4);
-    scene.add(rimCyan);
-    const under = new THREE.PointLight(DEEP, 30, 20);
-    under.position.set(0, -3, 2);
-    scene.add(under);
+    const rim = new THREE.DirectionalLight(0x8fb6ff, 0.7);
+    rim.position.set(-6, -1, -4);
+    scene.add(rim);
+    const cyanGlow = new THREE.PointLight(0x22d3ee, 14, 24);
+    cyanGlow.position.set(-2.4, -2.4, 2.4);
+    scene.add(cyanGlow);
 
-    // ---------- the card ----------
-    const card = new THREE.Group();
-    scene.add(card);
+    // group that floats / tilts
+    const rig = new THREE.Group();
+    scene.add(rig);
 
-    const pcbMat = new THREE.MeshStandardMaterial({ color: 0x0a1410, metalness: 0.4, roughness: 0.7 });
-    const shroudMat = new THREE.MeshStandardMaterial({ color: 0x0d1218, metalness: 0.75, roughness: 0.38 });
-    const trimMat = new THREE.MeshStandardMaterial({ color: 0x161d26, metalness: 0.9, roughness: 0.3 });
-
-    const pcb = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.18, 2.3), pcbMat);
-    pcb.position.y = 0;
-    card.add(pcb);
-
-    const shroud = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.62, 2.16), shroudMat);
-    shroud.position.y = 0.4;
-    card.add(shroud);
-
-    // beveled top trim
-    const trim = new THREE.Mesh(new THREE.BoxGeometry(5.04, 0.08, 2.2), trimMat);
-    trim.position.y = 0.72;
-    card.add(trim);
-
-    // emissive top light strip (RGB bar)
-    const stripMat = new THREE.MeshStandardMaterial({ color: CYAN, emissive: CYAN, emissiveIntensity: 3.2, roughness: 0.4 });
-    const strip = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.05, 0.06), stripMat);
-    strip.position.set(0, 0.77, 1.02);
-    card.add(strip);
-
-    // brand slit on the side
-    const brandMat = new THREE.MeshStandardMaterial({ color: BLUE, emissive: BLUE, emissiveIntensity: 2.6 });
-    const brand = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.16, 0.03), brandMat);
-    brand.position.set(1.4, 0.4, 1.09);
-    card.add(brand);
-
-    // I/O bracket + display ports at one end
-    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.0, 2.3), trimMat);
-    bracket.position.set(-2.62, 0.25, 0);
-    card.add(bracket);
-    const portMat = new THREE.MeshStandardMaterial({ color: 0x05121a, metalness: 0.6, roughness: 0.5 });
-    for (let i = 0; i < 3; i++) {
-      const port = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, 0.34), portMat);
-      port.position.set(-2.66, 0.1 + i * 0.26, -0.5 + i * 0.02);
-      card.add(port);
-    }
-
-    // ---------- fans ----------
-    const fanCenters = [-1.18, 1.18];
-    const fanY = 0.74;
-    const spinners = [];
-    const ringMaterial = new THREE.MeshStandardMaterial({ color: 0x11181f, metalness: 0.85, roughness: 0.32 });
-    const hubMat = new THREE.MeshStandardMaterial({ color: 0x0b0f14, metalness: 0.7, roughness: 0.4 });
-    const bladeMat = new THREE.MeshStandardMaterial({
-      color: 0x2c3d52, metalness: 0.55, roughness: 0.42,
-      emissive: BLUE, emissiveIntensity: 0.5, transparent: true, opacity: 0.94,
-    });
-    const fanRingMat = new THREE.MeshStandardMaterial({ color: CYAN, emissive: CYAN, emissiveIntensity: 2.2, roughness: 0.4 });
-    const bladeGeo = new THREE.BoxGeometry(0.62, 0.025, 0.2);
-
-    for (const cx of fanCenters) {
-      const housing = new THREE.Group();
-      housing.position.set(cx, fanY, 0);
-      card.add(housing);
-
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.94, 0.06, 16, 48), ringMaterial);
-      ring.rotation.x = Math.PI / 2;
-      housing.add(ring);
-
-      // glowing accent ring — makes the fan read as "compute" even in shadow
-      const glowRing = new THREE.Mesh(new THREE.TorusGeometry(0.86, 0.018, 12, 64), fanRingMat);
-      glowRing.rotation.x = Math.PI / 2;
-      glowRing.position.y = 0.06;
-      housing.add(glowRing);
-
-      // recessed inner well (dark) so fans read as sunk into the shroud
-      const well = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.9, 0.9, 0.16, 40, 1, true),
-        new THREE.MeshStandardMaterial({ color: 0x060a0e, metalness: 0.6, roughness: 0.6, side: THREE.DoubleSide }),
-      );
-      well.position.y = -0.12;
-      housing.add(well);
-
-      const spinner = new THREE.Group();
-      housing.add(spinner);
-      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.14, 24), hubMat);
-      spinner.add(hub);
-      const BLADES = 9;
-      for (let i = 0; i < BLADES; i++) {
-        const holder = new THREE.Group();
-        const blade = new THREE.Mesh(bladeGeo, bladeMat);
-        blade.position.set(0.46, 0, 0);
-        blade.rotation.x = THREE.MathUtils.degToRad(26); // pitch → airfoil look
-        holder.add(blade);
-        holder.rotation.y = (i / BLADES) * Math.PI * 2;
-        spinner.add(holder);
-      }
-      spinners.push(spinner);
-    }
-
-    // ---------- intake airflow particles ----------
-    const P = 900;
-    const positions = new Float32Array(P * 3);
-    const targetFan = new Int8Array(P);
-    const seed = new Float32Array(P);
-    function spawn(i, high) {
-      const fan = Math.random() < 0.5 ? 0 : 1;
-      targetFan[i] = fan;
-      const r = 0.6 + Math.random() * 1.5;
-      const a = Math.random() * Math.PI * 2;
-      positions[i * 3] = fanCenters[fan] + Math.cos(a) * r;
-      positions[i * 3 + 1] = high ? (fanY + 1.4 + Math.random() * 2.6) : (fanY + 0.2 + Math.random() * 3.8);
-      positions[i * 3 + 2] = Math.sin(a) * r;
-      seed[i] = 0.6 + Math.random() * 0.8;
-    }
-    for (let i = 0; i < P; i++) spawn(i, false);
-
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    // soft round sprite
-    const c = document.createElement('canvas');
-    c.width = c.height = 64;
-    const g = c.getContext('2d');
-    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grad.addColorStop(0, 'rgba(180,240,255,1)');
-    grad.addColorStop(0.4, 'rgba(90,180,255,0.55)');
-    grad.addColorStop(1, 'rgba(40,120,255,0)');
-    g.fillStyle = grad;
-    g.fillRect(0, 0, 64, 64);
-    const sprite = new THREE.CanvasTexture(c);
-
-    const pMat = new THREE.PointsMaterial({
-      size: 0.14, map: sprite, transparent: true, depthWrite: false,
-      blending: THREE.AdditiveBlending, opacity: 0.9,
-    });
-    const points = new THREE.Points(pGeo, pMat);
-    card.add(points);
-
-    // ---------- compute pulses running along the PCB rails ----------
-    const pulseMat = new THREE.MeshBasicMaterial({ color: CYAN });
-    const pulseMatB = new THREE.MeshBasicMaterial({ color: BLUE });
-    const pulses = [];
-    const railZ = [0.98, -0.98];
-    for (let r = 0; r < 2; r++) {
-      for (let k = 0; k < 4; k++) {
-        const m = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.03, 0.05), r === 0 ? pulseMat : pulseMatB);
-        m.position.set(-2.4 + k * 1.3, 0.11, railZ[r]);
-        m.userData = { speed: 1.8 + Math.random() * 1.2, z: railZ[r] };
-        card.add(m);
-        pulses.push(m);
-      }
-    }
-
-    // ---------- postprocessing (bloom) ----------
+    // ---------- soft bloom for the glow (subtle, only the brightest bits) ----------
     const composer = new EffectComposer(renderer);
     composer.setPixelRatio(DPR);
     composer.setSize(width, height);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.62, 0.5, 0.24);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.28, 0.6, 0.8);
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
 
-    // base orientation — a dynamic 3/4 view
-    card.rotation.x = 0.06;
-    card.rotation.y = -0.6;
+    // ---------- load the model ----------
+    const draco = new DRACOLoader();
+    draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(draco);
+    loader.setMeshoptDecoder(MeshoptDecoder);
 
-    // ---------- pointer parallax ----------
+    let model = null;
+    let mixer = null;
+    let fanCenters = [];
+
+    loader.load(
+      MODEL_URL,
+      (gltf) => {
+        model = gltf.scene;
+
+        // ---- auto-orient with proper rotations only (no mirroring) ----
+        // 1) fan face (thinnest axis) → camera (+Z); 2) roll so length lies horizontal.
+        // FACE_FLIP shows the other broad face if the backplate ends up toward us.
+        const FACE_FLIP = true;
+        model.updateMatrixWorld(true);
+        let box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const dims = [size.x, size.y, size.z];
+        const longest = dims.indexOf(Math.max(...dims));
+        const smallest = dims.indexOf(Math.min(...dims));
+        const axisVec = (i, s) => new THREE.Vector3(i === 0 ? s : 0, i === 1 ? s : 0, i === 2 ? s : 0);
+
+        const faceAxis = axisVec(smallest, FACE_FLIP ? -1 : 1);
+        const q1 = new THREE.Quaternion().setFromUnitVectors(faceAxis, new THREE.Vector3(0, 0, 1));
+        const lenAfter = axisVec(longest, 1).applyQuaternion(q1); // now lies ~in the XY plane
+        const roll = -Math.atan2(lenAfter.y, lenAfter.x);         // bring length onto +X (level)
+        const q2 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), roll);
+        model.quaternion.copy(q1).premultiply(q2);
+
+        // scale to a consistent on-screen size, then re-center (after rotation)
+        const maxDim = Math.max(size.x, size.y, size.z) || 1;
+        const target = 5.9;
+        model.scale.setScalar(target / maxDim);
+        model.updateMatrixWorld(true);
+        box = new THREE.Box3().setFromObject(model);
+        model.position.sub(box.getCenter(new THREE.Vector3()));
+
+        // HDRI drives the metal; a gentle emissive lift so branding reads (not blown out)
+        model.traverse((o) => {
+          if (o.isMesh && o.material) {
+            const mats = Array.isArray(o.material) ? o.material : [o.material];
+            mats.forEach((m) => {
+              if ('envMapIntensity' in m) m.envMapIntensity = 1.15;
+              if (m.emissive) m.emissiveIntensity = 0.6;
+              m.needsUpdate = true;
+            });
+          }
+        });
+
+        rig.add(model);
+
+        // spin the fans via the model's own animation clip (armature-driven)
+        if (gltf.animations && gltf.animations.length && !prefersReduced) {
+          mixer = new THREE.AnimationMixer(model);
+          const clip = gltf.animations.find((c) => /1200/.test(c.name))
+            || gltf.animations.find((c) => /rpm/.test(c.name)) || gltf.animations[0];
+          const action = mixer.clipAction(clip);
+          action.timeScale = 0.55; // ease the spin so it reads smoothly, not strobing
+          action.play();
+          stage.dataset.fanclip = clip.name;
+        }
+
+        // locate the fan centres (rig-local) so airflow converges on them
+        scene.updateMatrixWorld(true);
+        const nodes = [];
+        model.traverse((o) => { if (o.name === 'fan' || o.name === 'fan_2') nodes.push(o); });
+        fanCenters = nodes.map((n) => {
+          const v = new THREE.Vector3();
+          n.getWorldPosition(v);
+          return rig.worldToLocal(v);
+        });
+        buildAirflow();
+
+        stage.classList.add('gpu-live');
+      },
+      undefined,
+      () => {
+        // no model → keep the quiet ambient fallback field
+        buildFallback();
+        stage.classList.add('gpu-live', 'gpu-nomodel');
+      },
+    );
+
+    // ---------- subtle intake airflow converging on the fan centres ----------
+    let airflow = null, aPos = null, aFan = null, aSpd = null;
+    const AN = 300;
+    function makeSprite(inner) {
+      const c = document.createElement('canvas'); c.width = c.height = 64;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, inner);
+      grad.addColorStop(1, 'rgba(80,150,255,0)');
+      g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    }
+    function respawn(i, near) {
+      const f = Math.floor(Math.random() * fanCenters.length);
+      aFan[i] = f;
+      const c = fanCenters[f];
+      const r = (near ? 0.2 : 0.8) + Math.random() * 1.4;
+      // random point on a sphere shell around the fan centre
+      const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+      aPos[i * 3] = c.x + r * Math.sin(ph) * Math.cos(th);
+      aPos[i * 3 + 1] = c.y + r * Math.sin(ph) * Math.sin(th);
+      aPos[i * 3 + 2] = c.z + r * Math.cos(ph);
+      aSpd[i] = 0.5 + Math.random() * 0.7;
+    }
+    function buildAirflow() {
+      if (!fanCenters.length) return;
+      aPos = new Float32Array(AN * 3); aFan = new Int8Array(AN); aSpd = new Float32Array(AN);
+      for (let i = 0; i < AN; i++) respawn(i, false);
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(aPos, 3));
+      airflow = new THREE.Points(g, new THREE.PointsMaterial({
+        size: 0.06, map: makeSprite('rgba(190,235,255,0.9)'), transparent: true,
+        depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.4,
+      }));
+      rig.add(airflow);
+    }
+
+    // ---------- fallback ambient field (only if the model is missing) ----------
+    let points = null;
+    function buildFallback() {
+      const N = 320;
+      const pos = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) {
+        pos[i * 3] = (Math.random() - 0.5) * 7;
+        pos[i * 3 + 1] = (Math.random() - 0.5) * 5;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * 5;
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      const sc = document.createElement('canvas'); sc.width = sc.height = 64;
+      const sg = sc.getContext('2d');
+      const grad = sg.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(190,235,255,0.9)');
+      grad.addColorStop(1, 'rgba(80,150,255,0)');
+      sg.fillStyle = grad; sg.fillRect(0, 0, 64, 64);
+      points = new THREE.Points(g, new THREE.PointsMaterial({
+        size: 0.08, map: new THREE.CanvasTexture(sc), transparent: true,
+        depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.5,
+      }));
+      rig.add(points);
+    }
+
+    // ---------- base orientation + interaction ----------
+    const ROT_Y = -0.5, ROT_X = 0.12;
+    rig.rotation.set(ROT_X, ROT_Y, 0);
+
     let pointerX = 0, pointerY = 0;
-    if (!prefersReduced && window.matchMedia('(pointer: fine)').matches) {
+    if (!prefersReduced && finePointer) {
       window.addEventListener('pointermove', (e) => {
         pointerX = (e.clientX / window.innerWidth) * 2 - 1;
         pointerY = (e.clientY / window.innerHeight) * 2 - 1;
       }, { passive: true });
     }
 
-    // ---------- resize ----------
     const onResize = () => {
       width = stage.clientWidth || width;
       height = stage.clientHeight || height;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
-      composer.setSize(width, height);
     };
     window.addEventListener('resize', onResize, { passive: true });
 
-    // ---------- animation ----------
     const clock = new THREE.Clock();
     let running = true;
 
     function frame() {
-      const dt = Math.min(clock.getDelta(), 0.05);
       const t = clock.elapsedTime;
+      const dt = Math.min(clock.getDelta(), 0.05);
 
-      for (const s of spinners) s.rotation.y += dt * 7.5;
+      if (mixer) mixer.update(dt); // spin the fans
 
-      // suck particles into the fans
-      const arr = positions;
-      for (let i = 0; i < P; i++) {
-        const ix = i * 3;
-        const fx = fanCenters[targetFan[i]];
-        const dx = fx - arr[ix];
-        const dz = 0 - arr[ix + 2];
-        const distXZ = Math.hypot(dx, dz) + 0.0001;
-        const pull = (1.2 + seed[i]) * dt * (1 + 1.5 / distXZ);
-        arr[ix] += (dx / distXZ) * pull * 0.5;
-        arr[ix + 2] += (dz / distXZ) * pull * 0.5;
-        arr[ix + 1] -= dt * (1.4 + seed[i] * 1.6) * (1 + 1.0 / (Math.abs(arr[ix + 1] - fanY) + 0.4));
-        if (arr[ix + 1] < fanY - 0.1 || distXZ < 0.12) spawn(i, true);
-      }
-      pGeo.attributes.position.needsUpdate = true;
-
-      // compute pulses
-      for (const m of pulses) {
-        m.position.x += m.userData.speed * dt;
-        const glow = 0.6 + 0.4 * Math.sin(t * 6 + m.position.x);
-        m.scale.setScalar(glow);
-        if (m.position.x > 2.5) m.position.x = -2.5;
+      // subtle intake: motes converge on the fan centres, respawn on contact
+      if (airflow) {
+        for (let i = 0; i < AN; i++) {
+          const ix = i * 3;
+          const c = fanCenters[aFan[i]];
+          const dx = c.x - aPos[ix], dy = c.y - aPos[ix + 1], dz = c.z - aPos[ix + 2];
+          const d = Math.hypot(dx, dy, dz) + 0.001;
+          const s = aSpd[i] * dt;
+          aPos[ix] += (dx / d) * s;
+          aPos[ix + 1] += (dy / d) * s;
+          aPos[ix + 2] += (dz / d) * s;
+          if (d < 0.18) respawn(i, true);
+        }
+        airflow.geometry.attributes.position.needsUpdate = true;
       }
 
-      // pulse the light strip
-      stripMat.emissiveIntensity = 2.6 + Math.sin(t * 2.2) * 0.9;
+      // gentle float + sway + pointer parallax
+      rig.position.y = Math.sin(t * 0.7) * 0.14;
+      rig.position.x = Math.sin(t * 0.45) * 0.05;
+      const targetY = ROT_Y + pointerX * 0.55 + Math.sin(t * 0.2) * 0.05;
+      const targetX = ROT_X + pointerY * 0.3;
+      rig.rotation.y += (targetY - rig.rotation.y) * 0.06;
+      rig.rotation.x += (targetX - rig.rotation.x) * 0.06;
+      rig.rotation.z = Math.sin(t * 0.5) * 0.012;
 
-      // gentle auto-rotate + pointer parallax
-      const targetY = -0.6 + pointerX * 0.35 + Math.sin(t * 0.25) * 0.08;
-      const targetX = 0.06 + pointerY * 0.15;
-      card.rotation.y += (targetY - card.rotation.y) * 0.05;
-      card.rotation.x += (targetX - card.rotation.x) * 0.05;
+      if (points) points.rotation.y += dt * 0.05;
 
       composer.render();
     }
 
-    function loop() {
-      if (!running) return;
-      frame();
-      requestAnimationFrame(loop);
-    }
+    function loop() { if (!running) return; frame(); requestAnimationFrame(loop); }
 
     if (prefersReduced) {
-      // one static, nicely-lit frame — no motion
-      composer.render();
+      // render a few frames so late-loading model/env still show, then hold
+      let n = 0;
+      const settle = () => { composer.render(); if (n++ < 90) requestAnimationFrame(settle); };
+      settle();
     } else {
-      // pause when the hero scrolls away or the tab is hidden
       const vis = new IntersectionObserver((entries) => {
         const on = entries.some((e) => e.isIntersecting);
         if (on && !running) { running = true; clock.getDelta(); loop(); }
@@ -338,7 +341,7 @@
       }, { threshold: 0.01 });
       vis.observe(stage);
       document.addEventListener('visibilitychange', () => {
-        if (document.hidden) { running = false; }
+        if (document.hidden) running = false;
         else if (!running) { running = true; clock.getDelta(); loop(); }
       });
       loop();
@@ -353,10 +356,9 @@
     min-height: 420px;
     aspect-ratio: 4 / 3;
     max-height: 520px;
-    /* ambient blue bloom behind the card while the scene boots */
     background:
-      radial-gradient(60% 55% at 55% 45%, rgba(47, 107, 255, 0.14), transparent 70%),
-      radial-gradient(40% 40% at 50% 60%, rgba(34, 211, 238, 0.10), transparent 70%);
+      radial-gradient(58% 52% at 52% 46%, rgba(34, 211, 238, 0.08), transparent 70%),
+      radial-gradient(45% 45% at 50% 62%, rgba(47, 107, 255, 0.06), transparent 72%);
   }
   .gpu-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
   .gpu-tag {
@@ -383,9 +385,7 @@
   .gpu-live .gpu-tag { opacity: 1; }
   @keyframes gpu-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
   .gpu-failed { display: none; }
-  @media (prefers-reduced-motion: reduce) {
-    .gpu-tag::before { animation: none; }
-  }
+  @media (prefers-reduced-motion: reduce) { .gpu-tag::before { animation: none; } }
   @media (max-width: 900px) {
     .gpu-stage { min-height: 320px; max-height: 380px; aspect-ratio: 16 / 11; }
   }
