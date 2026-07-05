@@ -8,7 +8,7 @@ const PAPER_PDF = `${base}/pdf/satyam-chatrola-research-paper.pdf`;
 const PAPER_URL =
   'https://www.researchgate.net/publication/388835538_Benchmarking_Fine-Tuned_Transformers_LLMs_and_LSTM_Networks_for_Automated_Essay_Scoring';
 
-// The hero "response" — streamed token by token like a model decoding.
+// The "response" — streamed token by token like a model decoding.
 // Clicking "resample" re-runs the decode with another line from this pool.
 const RESPONSES = [
   'AI Systems Engineer. I build low-latency systems that serve large language models — from inference optimization and serving infrastructure to ML at planet scale.',
@@ -128,6 +128,9 @@ const links = [
   title="Satyam Chatrola — AI Systems Engineer · LLM inference & serving"
   description="Satyam Chatrola is an AI Systems Engineer specializing in LLM inference and serving — low-latency model serving, inference optimization, and ML systems at scale."
 >
+  <!-- The engine: a fixed full-viewport GPU the whole page boots on. -->
+  <GpuScene />
+
   <!-- ================= NAV ================= -->
   <header class="nav">
     <div class="shell nav-inner">
@@ -143,23 +146,50 @@ const links = [
     </div>
   </header>
 
-  <div class="spotlight" aria-hidden="true"></div>
-
   <main id="top">
-    <!-- ================= HERO ================= -->
-    <section class="hero shell">
-      <div class="hero-copy">
-        <p class="prompt" data-reveal><span class="prompt-caret">&gt;</span> whoami</p>
+    <!-- ================= HERO (overlay on the engine) ================= -->
+    <section class="stage">
+      <div class="shell stage-inner">
+        <p class="eyebrow eyebrow-live" data-hero>inference engine — online</p>
 
-        <h1 class="hero-name" data-reveal style="--reveal-delay: 90ms">
+        <h1 class="hero-name" data-hero style="--reveal-delay: 90ms">
           Satyam<br />Chatrola
         </h1>
 
-        <p class="hero-response" data-reveal style="--reveal-delay: 180ms">
+        <p class="hero-role" data-hero style="--reveal-delay: 180ms">
+          AI&nbsp;Systems&nbsp;Engineer <span class="role-sep">·</span> LLM&nbsp;inference&nbsp;&amp;&nbsp;serving
+        </p>
+
+        <p class="hero-readout" data-hero style="--reveal-delay: 250ms" aria-hidden="true">
+          <span class="ro-dot"></span>online
+          <span class="ro-sep">·</span> <span id="ro-tps">—</span>&nbsp;tok/s
+          <span class="ro-sep">·</span> TTFT&nbsp;<span id="ro-ttft">—</span>
+          <span class="ro-sep">·</span> util&nbsp;<span id="ro-util">—</span>%
+        </p>
+
+        <div class="hero-cta" data-hero style="--reveal-delay: 330ms">
+          <a class="btn btn-primary" data-magnetic href="#work">View work</a>
+          <a class="btn" data-magnetic href={RESUME} target="_blank" rel="noopener">Download résumé <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+
+      <a class="scroll-cue" href="#response" aria-label="Scroll to enter">
+        <span class="cue-label">scroll to boot</span>
+        <span class="cue-arrow" aria-hidden="true">↓</span>
+      </a>
+    </section>
+
+    <div class="deck">
+      <!-- ================= RESPONSE (the decode signature) ================= -->
+      <section id="response" class="section shell">
+        <p class="eyebrow" data-reveal>response</p>
+        <p class="prompt" data-reveal style="--reveal-delay: 70ms"><span class="prompt-caret">&gt;</span> whoami</p>
+
+        <p class="decode-line" data-reveal style="--reveal-delay: 140ms">
           <span id="decode" data-full={RESPONSE} aria-label={RESPONSE}></span><span class="cursor" id="cursor" aria-hidden="true"></span>
         </p>
 
-        <div class="hero-meta" data-reveal style="--reveal-delay: 260ms">
+        <div class="decode-meta" data-reveal style="--reveal-delay: 220ms">
           <div class="telemetry" aria-hidden="true">
             <span class="tel-item"><span id="tokcount">0</span> tokens</span>
             <span class="tel-sep">·</span>
@@ -171,151 +201,205 @@ const links = [
             <span class="regen-ico" aria-hidden="true">↻</span> resample
           </button>
         </div>
+      </section>
 
-        <div class="hero-cta" data-reveal style="--reveal-delay: 340ms">
-          <a class="btn btn-primary" data-magnetic href="#work">View work</a>
-          <a class="btn" data-magnetic href={RESUME} target="_blank" rel="noopener">Download résumé <span aria-hidden="true">↗</span></a>
+      <!-- ================= FOCUS ================= -->
+      <section id="focus" class="section shell">
+        <p class="eyebrow" data-reveal>focus</p>
+        <h2 class="section-title" data-reveal>What I do</h2>
+        <div class="focus-grid">
+          {focus.map((f, i) => (
+            <article class="focus-card" data-reveal style={`--reveal-delay: ${i * 70}ms`}>
+              <span class="focus-k">{f.k}</span>
+              <h3>{f.title}</h3>
+              <p>{f.body}</p>
+            </article>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <div class="hero-visual">
-        <GpuScene />
-      </div>
-    </section>
-
-    <!-- ================= FOCUS ================= -->
-    <section id="focus" class="section shell">
-      <p class="eyebrow" data-reveal>focus</p>
-      <h2 class="section-title" data-reveal>What I do</h2>
-      <div class="focus-grid">
-        {focus.map((f, i) => (
-          <article class="focus-card" data-reveal style={`--reveal-delay: ${i * 70}ms`}>
-            <span class="focus-k">{f.k}</span>
-            <h3>{f.title}</h3>
-            <p>{f.body}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-
-    <!-- ================= EXPERIENCE ================= -->
-    <section id="experience" class="section shell">
-      <p class="eyebrow" data-reveal>signal</p>
-      <div class="exp">
-        <div class="exp-lead">
-          <h2 class="section-title" data-reveal>
-            I turn models into<br /><span class="accent-text">fast, dependable endpoints.</span>
-          </h2>
-          <div class="stats" data-reveal style="--reveal-delay: 140ms">
-            {stats.map((s) => (
-              <div class="stat">
-                <span
-                  class="stat-num"
-                  data-count={s.value}
-                  data-decimals={s.decimals}
-                  data-prefix={s.prefix}
-                  data-suffix={s.suffix}
-                >{s.prefix}0{s.suffix}</span>
-                <span class="stat-label">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div class="exp-body" data-reveal style="--reveal-delay: 90ms">
-          <p>
-            I'm an AI Systems Engineer and MS Computer Science student at NYU, focused on the part of
-            machine learning that decides whether it's actually useful: <strong>how it's served.</strong>{' '}
-            My work sits where software engineering, systems, and ML meet — making inference fast, cheap,
-            and reliable at scale.
-          </p>
-          <ul class="exp-list">
-            {highlights.map((h) => <li>{h}</li>)}
-          </ul>
-          <div class="creds">
-            {creds.map((c) => <span class="cred">{c}</span>)}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= WORK ================= -->
-    <section id="work" class="section shell">
-      <p class="eyebrow" data-reveal>work</p>
-      <h2 class="section-title" data-reveal>Selected projects</h2>
-      <div class="work-grid">
-        {projects.map((p, i) => (
-          <a class="work-card" data-tilt href={p.url} target="_blank" rel="noopener" data-reveal style={`--reveal-delay: ${i * 55}ms`}>
-            <span class="work-glare" aria-hidden="true"></span>
-            <div class="work-inner">
-              <div class="work-top">
-                <span class="work-tag">{p.tag}</span>
-                <span class="work-open" aria-hidden="true">→</span>
-              </div>
-              <h3 class="work-name">{p.name}</h3>
-              <p class="work-desc">{p.desc}</p>
-              <div class="work-meta">
-                <span class="work-lang"><span class="lang-dot"></span>{p.lang}</span>
-                {p.star > 0 && <span class="work-star">★ {p.star}</span>}
-              </div>
+      <!-- ================= SIGNAL / EXPERIENCE ================= -->
+      <section id="signal" class="section shell">
+        <p class="eyebrow" data-reveal>signal</p>
+        <div class="exp">
+          <div class="exp-lead">
+            <h2 class="section-title" data-reveal>
+              I turn models into<br /><span class="accent-text">fast, dependable endpoints.</span>
+            </h2>
+            <div class="stats" data-reveal style="--reveal-delay: 140ms">
+              {stats.map((s) => (
+                <div class="stat">
+                  <span
+                    class="stat-num"
+                    data-count={s.value}
+                    data-decimals={s.decimals}
+                    data-prefix={s.prefix}
+                    data-suffix={s.suffix}
+                  >{s.prefix}0{s.suffix}</span>
+                  <span class="stat-label">{s.label}</span>
+                </div>
+              ))}
             </div>
-          </a>
-        ))}
-      </div>
-      <a class="all-repos" href="https://github.com/Nightshade14?tab=repositories" target="_blank" rel="noopener" data-reveal>
-        All repositories on GitHub <span aria-hidden="true">↗</span>
-      </a>
-    </section>
-
-    <!-- ================= RESEARCH ================= -->
-    <section id="research" class="section shell">
-      <p class="eyebrow" data-reveal>research</p>
-      <div class="paper" data-reveal>
-        <span class="paper-badge">Published · peer-reviewed</span>
-        <h3 class="paper-title">
-          Benchmarking Fine-Tuned Transformers, LLMs and LSTM Networks for Automated Essay Scoring
-        </h3>
-        <p class="paper-desc">
-          A comparative study of how transformer fine-tuning, large language models, and recurrent
-          baselines trade off accuracy against the cost of scoring at scale — with the fine-tuned
-          approach exceeding prior benchmarks by 5.7%.
-        </p>
-        <div class="paper-links">
-          <a class="paper-cta" href={PAPER_URL} target="_blank" rel="noopener">
-            Read on ResearchGate <span aria-hidden="true">↗</span>
-          </a>
-          <a class="paper-pdf" href={PAPER_PDF} target="_blank" rel="noopener">PDF</a>
+          </div>
+          <div class="exp-body" data-reveal style="--reveal-delay: 90ms">
+            <p>
+              I'm an AI Systems Engineer and MS Computer Science student at NYU, focused on the part of
+              machine learning that decides whether it's actually useful: <strong>how it's served.</strong>{' '}
+              My work sits where software engineering, systems, and ML meet — making inference fast, cheap,
+              and reliable at scale.
+            </p>
+            <ul class="exp-list">
+              {highlights.map((h) => <li>{h}</li>)}
+            </ul>
+            <div class="creds">
+              {creds.map((c) => <span class="cred">{c}</span>)}
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ================= CONTACT / FOOTER ================= -->
-    <footer id="contact" class="footer">
-      <div class="shell">
-        <p class="eyebrow" data-reveal>connect</p>
-        <h2 class="footer-title" data-reveal>Let's make something respond faster.</h2>
-        <div class="link-grid" data-reveal style="--reveal-delay: 90ms">
-          {links.map((l) => (
-            <a class="link-row" href={l.url} target="_blank" rel="noopener">
-              <span class="link-label">{l.label}</span>
-              <span class="link-handle">{l.handle}</span>
+      <!-- ================= WORK ================= -->
+      <section id="work" class="section shell">
+        <p class="eyebrow" data-reveal>work</p>
+        <h2 class="section-title" data-reveal>Selected projects</h2>
+        <div class="work-grid">
+          {projects.map((p, i) => (
+            <a class="work-card" data-tilt href={p.url} target="_blank" rel="noopener" data-reveal style={`--reveal-delay: ${i * 55}ms`}>
+              <span class="work-glare" aria-hidden="true"></span>
+              <div class="work-inner">
+                <div class="work-top">
+                  <span class="work-tag">{p.tag}</span>
+                  <span class="work-open" aria-hidden="true">→</span>
+                </div>
+                <h3 class="work-name">{p.name}</h3>
+                <p class="work-desc">{p.desc}</p>
+                <div class="work-meta">
+                  <span class="work-lang"><span class="lang-dot"></span>{p.lang}</span>
+                  {p.star > 0 && <span class="work-star">★ {p.star}</span>}
+                </div>
+              </div>
             </a>
           ))}
         </div>
-        <div class="footer-foot">
-          <span class="foot-brand"><span class="brand-dot"></span>Satyam Chatrola</span>
-          <span class="foot-note">Built with Astro · hosted on GitHub Pages · © 2026</span>
+        <a class="all-repos" href="https://github.com/Nightshade14?tab=repositories" target="_blank" rel="noopener" data-reveal>
+          All repositories on GitHub <span aria-hidden="true">↗</span>
+        </a>
+      </section>
+
+      <!-- ================= RESEARCH ================= -->
+      <section id="research" class="section shell">
+        <p class="eyebrow" data-reveal>research</p>
+        <div class="paper" data-reveal>
+          <span class="paper-badge">Published · peer-reviewed</span>
+          <h3 class="paper-title">
+            Benchmarking Fine-Tuned Transformers, LLMs and LSTM Networks for Automated Essay Scoring
+          </h3>
+          <p class="paper-desc">
+            A comparative study of how transformer fine-tuning, large language models, and recurrent
+            baselines trade off accuracy against the cost of scoring at scale — with the fine-tuned
+            approach exceeding prior benchmarks by 5.7%.
+          </p>
+          <div class="paper-links">
+            <a class="paper-cta" href={PAPER_URL} target="_blank" rel="noopener">
+              Read on ResearchGate <span aria-hidden="true">↗</span>
+            </a>
+            <a class="paper-pdf" href={PAPER_PDF} target="_blank" rel="noopener">PDF</a>
+          </div>
         </div>
-      </div>
-    </footer>
+      </section>
+
+      <!-- ================= CONTACT / FOOTER ================= -->
+      <footer id="contact" class="footer">
+        <div class="shell">
+          <p class="eyebrow" data-reveal>connect</p>
+          <h2 class="footer-title" data-reveal>Let's make something respond faster.</h2>
+          <div class="link-grid" data-reveal style="--reveal-delay: 90ms">
+            {links.map((l) => (
+              <a class="link-row" href={l.url} target="_blank" rel="noopener">
+                <span class="link-label">{l.label}</span>
+                <span class="link-handle">{l.handle}</span>
+              </a>
+            ))}
+          </div>
+          <div class="footer-foot">
+            <span class="foot-brand"><span class="brand-dot"></span>Satyam Chatrola</span>
+            <span class="foot-note">Built with Astro · hosted on GitHub Pages · © 2026</span>
+          </div>
+        </div>
+      </footer>
+    </div>
   </main>
 
   <script define:vars={{ RESPONSES }}>
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // Pointer-driven effects only make sense with a precise pointer (skip touch).
     const finePointer = window.matchMedia('(pointer: fine)').matches;
     const interactive = finePointer && !prefersReduced;
 
-    /* ---- Signature: stream the hero "response" token by token, re-runnable via "resample". ---- */
+    /* ---- Boot progress: scroll 0 → ~1 viewport drives the engine crossfade + hero fade. ---- */
+    const BOOT_SPAN = 1.05; // viewport-heights of scroll to finish "booting"
+    const root = document.documentElement;
+    window.__bootP = 0;
+    let bootTick = false;
+    function setBoot() {
+      bootTick = false;
+      const p = Math.min(Math.max(window.scrollY / (window.innerHeight * BOOT_SPAN), 0), 1);
+      window.__bootP = p;
+      root.style.setProperty('--boot', p.toFixed(4));
+    }
+    const requestBoot = () => { if (!bootTick) { bootTick = true; requestAnimationFrame(setBoot); } };
+    window.addEventListener('scroll', requestBoot, { passive: true });
+    window.addEventListener('resize', requestBoot, { passive: true });
+    setBoot();
+
+    /* ---- Hero readout: the engine "comes online" when the 3D engine is ready. ---- */
+    const roTps = document.getElementById('ro-tps');
+    const roTtft = document.getElementById('ro-ttft');
+    const roUtil = document.getElementById('ro-util');
+    function spinUp() {
+      if (prefersReduced) {
+        if (roTps) roTps.textContent = '128';
+        if (roTtft) roTtft.textContent = '41ms';
+        if (roUtil) roUtil.textContent = '94';
+        return;
+      }
+      const dur = 1400, start = performance.now();
+      const tick = (now) => {
+        const t = Math.min((now - start) / dur, 1);
+        const e = 1 - Math.pow(1 - t, 3);
+        if (roTps) roTps.textContent = String(Math.round(e * 128));
+        if (roUtil) roUtil.textContent = String(Math.round(e * 94));
+        if (roTtft) roTtft.textContent = t < 0.55 ? '—' : '41ms';
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    // Phase the hero text in only AFTER the engine has rendered: a short beat
+    // once it reports ready (so the GPU has visibly materialized first), or
+    // immediately if it failed / on a safety timeout — the hero never sticks.
+    const stageInner = document.querySelector('.stage-inner');
+    let heroLit = false, revealScheduled = false;
+    function litHero() {
+      if (heroLit) return;
+      heroLit = true;
+      if (stageInner) stageInner.classList.add('hero-lit');
+      spinUp();
+    }
+    function scheduleHero(delay) {
+      if (revealScheduled) return;
+      revealScheduled = true;
+      setTimeout(litHero, prefersReduced ? 0 : delay);
+    }
+    if (prefersReduced) {
+      litHero(); // no phase-in for reduced motion — show it right away
+    } else {
+      // a short beat after the engine reports ready lets the GPU start
+      // materializing before the text writes over it.
+      window.addEventListener('engine:ready', () => scheduleHero(350));
+      setTimeout(() => scheduleHero(0), 3400); // safety: never leave the hero blank
+    }
+
+    /* ---- Signature: stream the "response" token by token, re-runnable via "resample". ---- */
     const el = document.getElementById('decode');
     const cursor = document.getElementById('cursor');
     const tokEl = document.getElementById('tokcount');
@@ -366,32 +450,26 @@ const links = [
       setTimeout(step, lead);
     }
 
-    runDecode(RESPONSES[0], 520);
+    // Kick off the decode when the response section first scrolls into view.
+    const respSection = document.getElementById('response');
+    let decodeStarted = false;
+    const startDecode = () => { if (!decodeStarted) { decodeStarted = true; runDecode(RESPONSES[0], 260); } };
+    if (respSection && 'IntersectionObserver' in window && !prefersReduced) {
+      const rio = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) { rio.disconnect(); startDecode(); }
+      }, { threshold: 0.35 });
+      rio.observe(respSection);
+    } else {
+      startDecode();
+    }
     if (regen) {
       regen.addEventListener('click', () => {
+        decodeStarted = true;
         respIndex = (respIndex + 1) % RESPONSES.length;
         regen.classList.add('is-spinning');
         setTimeout(() => regen.classList.remove('is-spinning'), 520);
         runDecode(RESPONSES[respIndex], 120);
       });
-    }
-
-    /* ---- Cursor spotlight: a soft cyan light that trails the pointer. ---- */
-    const spotlight = document.querySelector('.spotlight');
-    if (spotlight && interactive) {
-      let sx = window.innerWidth / 2, sy = window.innerHeight * 0.28;
-      let tx = sx, ty = sy, raf = 0;
-      const loop = () => {
-        sx += (tx - sx) * 0.12;
-        sy += (ty - sy) * 0.12;
-        spotlight.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -50%)`;
-        raf = (Math.abs(tx - sx) > 0.4 || Math.abs(ty - sy) > 0.4) ? requestAnimationFrame(loop) : 0;
-      };
-      window.addEventListener('pointermove', (e) => {
-        tx = e.clientX; ty = e.clientY;
-        if (!raf) raf = requestAnimationFrame(loop);
-      }, { passive: true });
-      spotlight.classList.add('on');
     }
 
     /* ---- Magnetic buttons: gently pull toward the pointer, spring back on leave. ---- */
@@ -466,7 +544,7 @@ const links = [
       top: 0;
       z-index: 50;
       backdrop-filter: blur(12px);
-      background: color-mix(in oklab, var(--bg) 72%, transparent);
+      background: color-mix(in oklab, var(--void) 55%, transparent);
       border-bottom: 1px solid var(--line);
     }
     .nav-inner {
@@ -527,6 +605,7 @@ const links = [
       border: 1px solid var(--line-2);
       border-radius: 999px;
       color: var(--text);
+      background: color-mix(in oklab, var(--void) 40%, transparent);
       transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.2s;
       white-space: nowrap;
     }
@@ -544,52 +623,157 @@ const links = [
       box-shadow: 0 0 30px var(--accent-glow);
     }
 
-    /* ===================== HERO ===================== */
-    .hero {
-      padding-top: clamp(3.5rem, 8vh, 7rem);
-      padding-bottom: clamp(3.5rem, 8vh, 7rem);
-      display: grid;
-      grid-template-columns: 1.02fr 0.98fr;
+    /* ===================== HERO (overlay on the fixed engine) ===================== */
+    .stage {
+      position: relative;
+      z-index: 1;
+      height: 100svh;
+      min-height: 34rem;
+      display: flex;
+      align-items: flex-end;
+      /* leave clear room below the copy for the scroll cue */
+      padding-bottom: clamp(5rem, 13vh, 8rem);
+      padding-top: 4.5rem;
+      overflow: hidden;
+    }
+    /* darken the lower third so hero copy stays legible over the GPU */
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--void) 82%, transparent) 100%);
+    }
+    /* the whole hero dissolves upward as the site boots */
+    .stage-inner {
+      opacity: calc(1 - var(--boot) * 1.7);
+      transform: translateY(calc(var(--boot) * -42px));
+      will-change: opacity, transform;
+    }
+    /* hero text phases in only AFTER the engine renders — JS adds .hero-lit,
+       then each item eases up on its own staggered delay */
+    [data-hero] { opacity: 0; transform: translateY(18px); }
+    .hero-lit [data-hero] {
+      animation: hero-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: var(--reveal-delay, 0ms);
+    }
+    @keyframes hero-in { to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      [data-hero] { opacity: 1; transform: none; animation: none; }
+    }
+
+    .eyebrow-live::before { animation: gpu-pulse 1.6s ease-in-out infinite; }
+    @keyframes gpu-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.32; } }
+    @media (prefers-reduced-motion: reduce) { .eyebrow-live::before { animation: none; } }
+
+    .hero-name {
+      font-size: var(--step-4);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      margin: 1.3rem 0 1.1rem;
+      text-wrap: balance;
+    }
+    .hero-role {
+      font-family: var(--font-mono);
+      font-size: clamp(0.95rem, 0.85rem + 0.7vw, 1.35rem);
+      color: var(--text-dim);
+      letter-spacing: 0.01em;
+      margin-bottom: 1.5rem;
+    }
+    .role-sep { color: var(--accent); margin: 0 0.15em; }
+
+    .hero-readout {
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      color: var(--text-faint);
+      letter-spacing: 0.03em;
+      display: inline-flex;
       align-items: center;
-      gap: clamp(1.5rem, 4vw, 3.5rem);
+      flex-wrap: wrap;
+      gap: 0.1rem 0.55rem;
+      margin-bottom: 1.9rem;
     }
-    .hero-visual { position: relative; min-width: 0; }
-    @media (max-width: 900px) {
-      .hero {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-      .hero-visual { order: -1; } /* show the GPU above the copy on narrow screens */
+    .hero-readout span[id] { color: var(--accent); font-variant-numeric: tabular-nums; }
+    .ro-sep { color: var(--text-faint) !important; opacity: 0.5; }
+    .ro-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 9px var(--accent-glow);
+      margin-right: 0.5em;
+      animation: gpu-pulse 1.6s ease-in-out infinite;
     }
+    @media (prefers-reduced-motion: reduce) { .ro-dot { animation: none; } }
+    .hero-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+    /* scroll cue pinned to the bottom of the hero */
+    .scroll-cue {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(1.1rem, 2.6vh, 1.9rem);
+      transform: translateX(-50%);
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      letter-spacing: 0.12em;
+      color: var(--text-faint);
+      opacity: calc(1 - var(--boot) * 4);
+      transition: color 0.2s;
+    }
+    .scroll-cue:hover { color: var(--accent); }
+    .cue-arrow { animation: cue-bob 1.8s ease-in-out infinite; }
+    @keyframes cue-bob { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(5px); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .cue-arrow { animation: none; } }
+
+    /* ===================== DECK (content booted in over the engine) ===================== */
+    .deck {
+      position: relative;
+      z-index: 1;
+      /* mostly-opaque scrim: text stays crisp, the engine lingers faintly behind */
+      background: color-mix(in oklab, var(--void) 88%, transparent);
+      border-top: 1px solid var(--line);
+    }
+
+    /* ===================== SECTIONS ===================== */
+    .section {
+      padding-block: clamp(3.5rem, 9vh, 7rem);
+      border-top: 1px solid var(--line);
+    }
+    .deck > .section:first-of-type { border-top: none; }
+    .section-title {
+      font-size: var(--step-2);
+      margin-top: 0.8rem;
+      margin-bottom: 2.6rem;
+      max-width: 20ch;
+    }
+    .accent-text { font-weight: inherit; color: var(--accent); }
+
+    /* ---- response / decode ---- */
     .prompt {
       font-family: var(--font-mono);
       font-size: var(--step--1);
       color: var(--text-faint);
       letter-spacing: 0.05em;
-      margin-bottom: 1.4rem;
+      margin-top: 0.9rem;
     }
     .prompt-caret { color: var(--accent); margin-right: 0.4em; }
-    .hero-name {
-      font-size: var(--step-4);
-      font-weight: 700;
-      letter-spacing: -0.035em;
-      line-height: 0.92;
-      margin-bottom: 1.6rem;
-    }
-    .hero-response {
+    .decode-line {
       font-family: var(--font-mono);
-      font-size: clamp(1rem, 0.9rem + 0.9vw, 1.4rem);
-      line-height: 1.55;
-      color: var(--text-dim);
-      max-width: min(42ch, 100%);
+      font-size: clamp(1.05rem, 0.95rem + 1.1vw, 1.7rem);
+      line-height: 1.5;
+      color: var(--text);
+      max-width: 46ch;
       overflow-wrap: break-word;
-      min-height: 6em; /* reserve space so streaming doesn't reflow the page */
-      margin-bottom: 1.6rem;
+      min-height: 4.6em;
+      margin: 1.1rem 0 1.4rem;
     }
-    .hero-response strong, .accent-text { color: var(--accent); font-weight: inherit; }
+    .decode-line strong { color: var(--accent); font-weight: inherit; }
     .cursor {
       display: inline-block;
-      width: 0.6ch;
+      width: 0.55ch;
       height: 1.05em;
       transform: translateY(0.18em);
       margin-left: 0.08em;
@@ -599,7 +783,7 @@ const links = [
     .cursor.is-idle { animation-duration: 1.4s; opacity: 0.7; }
     @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
-
+    .decode-meta { display: flex; align-items: center; gap: 0.9rem 1.4rem; flex-wrap: wrap; }
     .telemetry {
       display: flex;
       align-items: center;
@@ -607,17 +791,11 @@ const links = [
       font-family: var(--font-mono);
       font-size: var(--step--1);
       color: var(--text-faint);
-      margin-bottom: 2.4rem;
       flex-wrap: wrap;
     }
     .tel-sep { opacity: 0.5; }
     .tel-item span { color: var(--accent); }
-    .tel-bar {
-      width: 88px; height: 3px;
-      background: var(--line-2);
-      border-radius: 2px;
-      overflow: hidden;
-    }
+    .tel-bar { width: 88px; height: 3px; background: var(--line-2); border-radius: 2px; overflow: hidden; }
     .tel-fill {
       display: block; height: 100%; width: 0%;
       background: var(--accent);
@@ -626,20 +804,31 @@ const links = [
     }
     .tel-status { color: var(--text-faint); }
     .tel-status.is-done { color: var(--accent); }
-    .hero-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; }
-
-    /* ===================== SECTIONS ===================== */
-    .section {
-      padding-block: clamp(3.5rem, 9vh, 7rem);
-      border-top: 1px solid var(--line);
+    .regen {
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      color: var(--text-faint);
+      background: transparent;
+      border: 1px solid var(--line-2);
+      border-radius: 999px;
+      padding: 0.34em 0.85em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45em;
+      transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s;
     }
-    .section-title {
-      font-size: var(--step-2);
-      margin-top: 0.8rem;
-      margin-bottom: 2.6rem;
-      max-width: 20ch;
+    .regen:hover {
+      color: var(--accent);
+      border-color: var(--accent-line);
+      background: var(--accent-dim);
+      transform: translateY(-1px);
     }
-    .accent-text { font-weight: inherit; }
+    .regen:active { transform: translateY(0) scale(0.97); }
+    .regen-ico { display: inline-block; transition: transform 0.3s; }
+    .regen:hover .regen-ico { transform: rotate(-90deg); }
+    .regen.is-spinning .regen-ico { animation: spin 0.52s cubic-bezier(0.5, 0, 0.2, 1); }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ---- focus grid ---- */
     .focus-grid {
@@ -652,11 +841,11 @@ const links = [
       overflow: hidden;
     }
     .focus-card {
-      background: var(--bg);
+      background: color-mix(in oklab, var(--panel) 80%, transparent);
       padding: clamp(1.4rem, 3vw, 2.2rem);
       transition: background 0.3s;
     }
-    .focus-card:hover { background: var(--bg-1); }
+    .focus-card:hover { background: var(--panel-2); }
     .focus-k {
       font-family: var(--font-mono);
       font-size: var(--step--1);
@@ -669,7 +858,7 @@ const links = [
       .focus-grid { grid-template-columns: 1fr; }
     }
 
-    /* ---- experience ---- */
+    /* ---- experience / signal ---- */
     .exp { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(1.5rem, 5vw, 4rem); }
     .exp .section-title { margin-bottom: 0; }
     .exp-body p { color: var(--text-dim); margin-bottom: 1.6rem; }
@@ -710,17 +899,31 @@ const links = [
     .work-card {
       display: flex;
       flex-direction: column;
-      background: var(--bg-1);
+      background: color-mix(in oklab, var(--panel) 82%, transparent);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 1.4rem;
       min-height: 210px;
       transition: border-color 0.28s, transform 0.28s, background 0.28s;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      will-change: transform;
     }
     .work-card:hover {
       border-color: var(--accent-line);
       transform: translateY(-3px);
-      background: var(--bg-2);
+      background: var(--panel-2);
+    }
+    .work-inner { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; }
+    .work-glare {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 2;
     }
     .work-top { display: flex; justify-content: space-between; align-items: center; }
     .work-tag {
@@ -776,7 +979,7 @@ const links = [
     }
     .all-repos:hover { color: var(--accent); border-color: var(--accent-line); }
 
-    /* ---- research paper (single featured card, left accent rule) ---- */
+    /* ---- research paper ---- */
     .paper {
       position: relative;
       border: 1px solid var(--line);
@@ -785,7 +988,7 @@ const links = [
       padding: clamp(1.6rem, 4vw, 2.8rem);
       background:
         radial-gradient(120% 140% at 0% 0%, rgba(34,211,238,0.07), transparent 55%),
-        var(--bg-1);
+        color-mix(in oklab, var(--panel) 82%, transparent);
       transition: border-color 0.3s, transform 0.3s, background 0.3s;
     }
     .paper:hover {
@@ -832,7 +1035,7 @@ const links = [
       padding-block: clamp(3.5rem, 9vh, 7rem) 2.5rem;
       background:
         radial-gradient(90% 120% at 100% 100%, rgba(34,211,238,0.06), transparent 60%),
-        var(--bg);
+        transparent;
     }
     .footer-title {
       font-size: var(--step-2);
@@ -883,26 +1086,7 @@ const links = [
     }
     .foot-brand { display: inline-flex; align-items: center; gap: 0.55em; color: var(--text-dim); }
 
-    /* ===================== INTERACTIVE LAYER ===================== */
-    /* cursor spotlight — soft cyan light trailing the pointer */
-    .spotlight {
-      position: fixed;
-      top: 0; left: 0;
-      width: 620px; height: 620px;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0;
-      background: radial-gradient(circle, rgba(34, 211, 238, 0.09), transparent 62%);
-      filter: blur(6px);
-      transition: opacity 0.6s ease;
-      will-change: transform;
-    }
-    .spotlight.on { opacity: 1; }
-    @media (prefers-reduced-motion: reduce) { .spotlight { display: none; } }
-    main { position: relative; z-index: 1; }
-
-    /* brand dot "boop" on hover */
+    /* ===================== MICRO-INTERACTIONS ===================== */
     .brand:hover .brand-dot,
     .foot-brand:hover .brand-dot {
       animation: boop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -914,42 +1098,8 @@ const links = [
     }
     @media (prefers-reduced-motion: reduce) {
       .brand:hover .brand-dot, .foot-brand:hover .brand-dot { animation: none; }
+      .stage-inner { opacity: calc(1 - var(--boot) * 1.1); }
     }
-
-    /* hero meta row + resample control */
-    .hero-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.9rem 1.4rem;
-      flex-wrap: wrap;
-      margin-bottom: 2.4rem;
-    }
-    .telemetry { margin-bottom: 0; }
-    .regen {
-      font-family: var(--font-mono);
-      font-size: var(--step--1);
-      color: var(--text-faint);
-      background: transparent;
-      border: 1px solid var(--line-2);
-      border-radius: 999px;
-      padding: 0.34em 0.85em;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45em;
-      transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s;
-    }
-    .regen:hover {
-      color: var(--accent);
-      border-color: var(--accent-line);
-      background: var(--accent-dim);
-      transform: translateY(-1px);
-    }
-    .regen:active { transform: translateY(0) scale(0.97); }
-    .regen-ico { display: inline-block; transition: transform 0.3s; }
-    .regen:hover .regen-ico { transform: rotate(-90deg); }
-    .regen.is-spinning .regen-ico { animation: spin 0.52s cubic-bezier(0.5, 0, 0.2, 1); }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* count-up stats */
     .stats {
@@ -971,23 +1121,5 @@ const links = [
     }
     .stat-label { font-family: var(--font-mono); font-size: var(--step--1); color: var(--text-faint); }
     @media (max-width: 800px) { .stats { margin-top: 2rem; max-width: none; } }
-
-    /* project card tilt + glare */
-    .work-card {
-      position: relative;
-      overflow: hidden;
-      transform-style: preserve-3d;
-      will-change: transform;
-    }
-    .work-inner { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; }
-    .work-glare {
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 2;
-    }
   </style>
 </Base>
