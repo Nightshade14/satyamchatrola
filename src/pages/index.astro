@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import GpuScene from '../components/GpuScene.astro';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const RESUME = `${base}/pdf/Satyam_Chandrakant_Chatrola_Resume.pdf`;
@@ -147,32 +148,38 @@ const links = [
   <main id="top">
     <!-- ================= HERO ================= -->
     <section class="hero shell">
-      <p class="prompt" data-reveal><span class="prompt-caret">&gt;</span> whoami</p>
+      <div class="hero-copy">
+        <p class="prompt" data-reveal><span class="prompt-caret">&gt;</span> whoami</p>
 
-      <h1 class="hero-name" data-reveal style="--reveal-delay: 90ms">
-        Satyam<br />Chatrola
-      </h1>
+        <h1 class="hero-name" data-reveal style="--reveal-delay: 90ms">
+          Satyam<br />Chatrola
+        </h1>
 
-      <p class="hero-response" data-reveal style="--reveal-delay: 180ms">
-        <span id="decode" data-full={RESPONSE} aria-label={RESPONSE}></span><span class="cursor" id="cursor" aria-hidden="true"></span>
-      </p>
+        <p class="hero-response" data-reveal style="--reveal-delay: 180ms">
+          <span id="decode" data-full={RESPONSE} aria-label={RESPONSE}></span><span class="cursor" id="cursor" aria-hidden="true"></span>
+        </p>
 
-      <div class="hero-meta" data-reveal style="--reveal-delay: 260ms">
-        <div class="telemetry" aria-hidden="true">
-          <span class="tel-item"><span id="tokcount">0</span> tokens</span>
-          <span class="tel-sep">·</span>
-          <span class="tel-item"><span id="tokrate">—</span> tok/s</span>
-          <span class="tel-bar"><span class="tel-fill" id="telfill"></span></span>
-          <span class="tel-status" id="telstatus">streaming</span>
+        <div class="hero-meta" data-reveal style="--reveal-delay: 260ms">
+          <div class="telemetry" aria-hidden="true">
+            <span class="tel-item"><span id="tokcount">0</span> tokens</span>
+            <span class="tel-sep">·</span>
+            <span class="tel-item"><span id="tokrate">—</span> tok/s</span>
+            <span class="tel-bar"><span class="tel-fill" id="telfill"></span></span>
+            <span class="tel-status" id="telstatus">streaming</span>
+          </div>
+          <button class="regen" id="regen" type="button" aria-label="Regenerate the response">
+            <span class="regen-ico" aria-hidden="true">↻</span> resample
+          </button>
         </div>
-        <button class="regen" id="regen" type="button" aria-label="Regenerate the response">
-          <span class="regen-ico" aria-hidden="true">↻</span> resample
-        </button>
+
+        <div class="hero-cta" data-reveal style="--reveal-delay: 340ms">
+          <a class="btn btn-primary" data-magnetic href="#work">View work</a>
+          <a class="btn" data-magnetic href={RESUME} target="_blank" rel="noopener">Download résumé <span aria-hidden="true">↗</span></a>
+        </div>
       </div>
 
-      <div class="hero-cta" data-reveal style="--reveal-delay: 340ms">
-        <a class="btn btn-primary" data-magnetic href="#work">View work</a>
-        <a class="btn" data-magnetic href={RESUME} target="_blank" rel="noopener">Download résumé <span aria-hidden="true">↗</span></a>
+      <div class="hero-visual">
+        <GpuScene />
       </div>
     </section>
 
@@ -539,8 +546,20 @@ const links = [
 
     /* ===================== HERO ===================== */
     .hero {
-      padding-top: clamp(4.5rem, 10vh, 9rem);
+      padding-top: clamp(3.5rem, 8vh, 7rem);
       padding-bottom: clamp(3.5rem, 8vh, 7rem);
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      align-items: center;
+      gap: clamp(1.5rem, 4vw, 3.5rem);
+    }
+    .hero-visual { position: relative; min-width: 0; }
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      .hero-visual { order: -1; } /* show the GPU above the copy on narrow screens */
     }
     .prompt {
       font-family: var(--font-mono);
