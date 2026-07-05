@@ -1,0 +1,392 @@
+---
+// Photoreal 3D GPU hero. Loads a real .glb model, lights it with an HDRI
+// studio environment (accurate metal reflections), auto-centers/scales/frames
+// it, and floats it with pointer parallax. Lazy-loaded; falls back to a quiet
+// ambient field if no model is present or WebGL is unavailable.
+//
+// Drop your model at: public/models/gpu.glb   (Draco / Meshopt supported)
+---
+
+<div class="gpu-stage" id="gpu-stage" aria-hidden="true" data-reveal style="--reveal-delay: 220ms">
+  <span class="gpu-tag">compute · live</span>
+</div>
+
+<script>
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const MODEL_URL = `${BASE}/models/geforce_rtx_3080_graphics_card.glb`;
+  const HDRI_URL = `${BASE}/hdri/studio.hdr`;
+
+  const stage = document.getElementById('gpu-stage');
+  if (stage) {
+    const kickoff = () => {
+      const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
+      idle(() => boot(stage));
+    };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) { io.disconnect(); kickoff(); }
+      }, { rootMargin: '200px' });
+      io.observe(stage);
+    } else {
+      kickoff();
+    }
+  }
+
+  let booted = false;
+  async function boot(stage) {
+    if (booted) return;
+    booted = true;
+
+    let THREE, GLTFLoader, DRACOLoader, RGBELoader, MeshoptDecoder;
+    let EffectComposer, RenderPass, UnrealBloomPass, OutputPass;
+    try {
+      THREE = await import('three');
+      ({ GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'));
+      ({ DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js'));
+      ({ RGBELoader } = await import('three/addons/loaders/RGBELoader.js'));
+      ({ MeshoptDecoder } = await import('three/addons/libs/meshopt_decoder.module.js'));
+      ({ EffectComposer } = await import('three/addons/postprocessing/EffectComposer.js'));
+      ({ RenderPass } = await import('three/addons/postprocessing/RenderPass.js'));
+      ({ UnrealBloomPass } = await import('three/addons/postprocessing/UnrealBloomPass.js'));
+      ({ OutputPass } = await import('three/addons/postprocessing/OutputPass.js'));
+    } catch (e) {
+      stage.classList.add('gpu-failed');
+      return;
+    }
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+    let width = stage.clientWidth || 480;
+    let height = stage.clientHeight || 420;
+
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      if (!renderer.getContext()) throw new Error('no webgl');
+    } catch (e) {
+      stage.classList.add('gpu-failed');
+      return;
+    }
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    renderer.setPixelRatio(DPR);
+    renderer.setSize(width, height);
+    renderer.setClearColor(0x000000, 0);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.95;
+    renderer.domElement.classList.add('gpu-canvas');
+    stage.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 100);
+    camera.position.set(0, 0, 9);
+    camera.lookAt(0, 0, 0);
+
+    // ---------- HDRI environment (accurate reflections on metal) ----------
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    new RGBELoader().load(HDRI_URL, (hdr) => {
+      const env = pmrem.fromEquirectangular(hdr).texture;
+      scene.environment = env;
+      hdr.dispose();
+    });
+
+    // a soft key light + cool rim/underglow (the glow accent) so the card reads
+    const key = new THREE.DirectionalLight(0xffffff, 1.3);
+    key.position.set(4, 6, 6);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0x8fb6ff, 0.7);
+    rim.position.set(-6, -1, -4);
+    scene.add(rim);
+    const cyanGlow = new THREE.PointLight(0x22d3ee, 14, 24);
+    cyanGlow.position.set(-2.4, -2.4, 2.4);
+    scene.add(cyanGlow);
+
+    // group that floats / tilts
+    const rig = new THREE.Group();
+    scene.add(rig);
+
+    // ---------- soft bloom for the glow (subtle, only the brightest bits) ----------
+    const composer = new EffectComposer(renderer);
+    composer.setPixelRatio(DPR);
+    composer.setSize(width, height);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.28, 0.6, 0.8);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+
+    // ---------- load the model ----------
+    const draco = new DRACOLoader();
+    draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(draco);
+    loader.setMeshoptDecoder(MeshoptDecoder);
+
+    let model = null;
+    let mixer = null;
+    let fanCenters = [];
+
+    loader.load(
+      MODEL_URL,
+      (gltf) => {
+        model = gltf.scene;
+
+        // ---- auto-orient with proper rotations only (no mirroring) ----
+        // 1) fan face (thinnest axis) → camera (+Z); 2) roll so length lies horizontal.
+        // FACE_FLIP shows the other broad face if the backplate ends up toward us.
+        const FACE_FLIP = true;
+        model.updateMatrixWorld(true);
+        let box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const dims = [size.x, size.y, size.z];
+        const longest = dims.indexOf(Math.max(...dims));
+        const smallest = dims.indexOf(Math.min(...dims));
+        const axisVec = (i, s) => new THREE.Vector3(i === 0 ? s : 0, i === 1 ? s : 0, i === 2 ? s : 0);
+
+        const faceAxis = axisVec(smallest, FACE_FLIP ? -1 : 1);
+        const q1 = new THREE.Quaternion().setFromUnitVectors(faceAxis, new THREE.Vector3(0, 0, 1));
+        const lenAfter = axisVec(longest, 1).applyQuaternion(q1); // now lies ~in the XY plane
+        const roll = -Math.atan2(lenAfter.y, lenAfter.x);         // bring length onto +X (level)
+        const q2 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), roll);
+        model.quaternion.copy(q1).premultiply(q2);
+
+        // scale to a consistent on-screen size, then re-center (after rotation)
+        const maxDim = Math.max(size.x, size.y, size.z) || 1;
+        const target = 5.9;
+        model.scale.setScalar(target / maxDim);
+        model.updateMatrixWorld(true);
+        box = new THREE.Box3().setFromObject(model);
+        model.position.sub(box.getCenter(new THREE.Vector3()));
+
+        // HDRI drives the metal; a gentle emissive lift so branding reads (not blown out)
+        model.traverse((o) => {
+          if (o.isMesh && o.material) {
+            const mats = Array.isArray(o.material) ? o.material : [o.material];
+            mats.forEach((m) => {
+              if ('envMapIntensity' in m) m.envMapIntensity = 1.15;
+              if (m.emissive) m.emissiveIntensity = 0.6;
+              m.needsUpdate = true;
+            });
+          }
+        });
+
+        rig.add(model);
+
+        // spin the fans via the model's own animation clip (armature-driven)
+        if (gltf.animations && gltf.animations.length && !prefersReduced) {
+          mixer = new THREE.AnimationMixer(model);
+          const clip = gltf.animations.find((c) => /1200/.test(c.name))
+            || gltf.animations.find((c) => /rpm/.test(c.name)) || gltf.animations[0];
+          const action = mixer.clipAction(clip);
+          action.timeScale = 0.55; // ease the spin so it reads smoothly, not strobing
+          action.play();
+          stage.dataset.fanclip = clip.name;
+        }
+
+        // locate the fan centres (rig-local) so airflow converges on them
+        scene.updateMatrixWorld(true);
+        const nodes = [];
+        model.traverse((o) => { if (o.name === 'fan' || o.name === 'fan_2') nodes.push(o); });
+        fanCenters = nodes.map((n) => {
+          const v = new THREE.Vector3();
+          n.getWorldPosition(v);
+          return rig.worldToLocal(v);
+        });
+        buildAirflow();
+
+        stage.classList.add('gpu-live');
+      },
+      undefined,
+      () => {
+        // no model → keep the quiet ambient fallback field
+        buildFallback();
+        stage.classList.add('gpu-live', 'gpu-nomodel');
+      },
+    );
+
+    // ---------- subtle intake airflow converging on the fan centres ----------
+    let airflow = null, aPos = null, aFan = null, aSpd = null;
+    const AN = 300;
+    function makeSprite(inner) {
+      const c = document.createElement('canvas'); c.width = c.height = 64;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, inner);
+      grad.addColorStop(1, 'rgba(80,150,255,0)');
+      g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    }
+    function respawn(i, near) {
+      const f = Math.floor(Math.random() * fanCenters.length);
+      aFan[i] = f;
+      const c = fanCenters[f];
+      const r = (near ? 0.2 : 0.8) + Math.random() * 1.4;
+      // random point on a sphere shell around the fan centre
+      const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+      aPos[i * 3] = c.x + r * Math.sin(ph) * Math.cos(th);
+      aPos[i * 3 + 1] = c.y + r * Math.sin(ph) * Math.sin(th);
+      aPos[i * 3 + 2] = c.z + r * Math.cos(ph);
+      aSpd[i] = 0.5 + Math.random() * 0.7;
+    }
+    function buildAirflow() {
+      if (!fanCenters.length) return;
+      aPos = new Float32Array(AN * 3); aFan = new Int8Array(AN); aSpd = new Float32Array(AN);
+      for (let i = 0; i < AN; i++) respawn(i, false);
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(aPos, 3));
+      airflow = new THREE.Points(g, new THREE.PointsMaterial({
+        size: 0.06, map: makeSprite('rgba(190,235,255,0.9)'), transparent: true,
+        depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.4,
+      }));
+      rig.add(airflow);
+    }
+
+    // ---------- fallback ambient field (only if the model is missing) ----------
+    let points = null;
+    function buildFallback() {
+      const N = 320;
+      const pos = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) {
+        pos[i * 3] = (Math.random() - 0.5) * 7;
+        pos[i * 3 + 1] = (Math.random() - 0.5) * 5;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * 5;
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      const sc = document.createElement('canvas'); sc.width = sc.height = 64;
+      const sg = sc.getContext('2d');
+      const grad = sg.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(190,235,255,0.9)');
+      grad.addColorStop(1, 'rgba(80,150,255,0)');
+      sg.fillStyle = grad; sg.fillRect(0, 0, 64, 64);
+      points = new THREE.Points(g, new THREE.PointsMaterial({
+        size: 0.08, map: new THREE.CanvasTexture(sc), transparent: true,
+        depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.5,
+      }));
+      rig.add(points);
+    }
+
+    // ---------- base orientation + interaction ----------
+    const ROT_Y = -0.5, ROT_X = 0.12;
+    rig.rotation.set(ROT_X, ROT_Y, 0);
+
+    let pointerX = 0, pointerY = 0;
+    if (!prefersReduced && finePointer) {
+      window.addEventListener('pointermove', (e) => {
+        pointerX = (e.clientX / window.innerWidth) * 2 - 1;
+        pointerY = (e.clientY / window.innerHeight) * 2 - 1;
+      }, { passive: true });
+    }
+
+    const onResize = () => {
+      width = stage.clientWidth || width;
+      height = stage.clientHeight || height;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+
+    const clock = new THREE.Clock();
+    let running = true;
+
+    function frame() {
+      const t = clock.elapsedTime;
+      const dt = Math.min(clock.getDelta(), 0.05);
+
+      if (mixer) mixer.update(dt); // spin the fans
+
+      // subtle intake: motes converge on the fan centres, respawn on contact
+      if (airflow) {
+        for (let i = 0; i < AN; i++) {
+          const ix = i * 3;
+          const c = fanCenters[aFan[i]];
+          const dx = c.x - aPos[ix], dy = c.y - aPos[ix + 1], dz = c.z - aPos[ix + 2];
+          const d = Math.hypot(dx, dy, dz) + 0.001;
+          const s = aSpd[i] * dt;
+          aPos[ix] += (dx / d) * s;
+          aPos[ix + 1] += (dy / d) * s;
+          aPos[ix + 2] += (dz / d) * s;
+          if (d < 0.18) respawn(i, true);
+        }
+        airflow.geometry.attributes.position.needsUpdate = true;
+      }
+
+      // gentle float + sway + pointer parallax
+      rig.position.y = Math.sin(t * 0.7) * 0.14;
+      rig.position.x = Math.sin(t * 0.45) * 0.05;
+      const targetY = ROT_Y + pointerX * 0.55 + Math.sin(t * 0.2) * 0.05;
+      const targetX = ROT_X + pointerY * 0.3;
+      rig.rotation.y += (targetY - rig.rotation.y) * 0.06;
+      rig.rotation.x += (targetX - rig.rotation.x) * 0.06;
+      rig.rotation.z = Math.sin(t * 0.5) * 0.012;
+
+      if (points) points.rotation.y += dt * 0.05;
+
+      composer.render();
+    }
+
+    function loop() { if (!running) return; frame(); requestAnimationFrame(loop); }
+
+    if (prefersReduced) {
+      // render a few frames so late-loading model/env still show, then hold
+      let n = 0;
+      const settle = () => { composer.render(); if (n++ < 90) requestAnimationFrame(settle); };
+      settle();
+    } else {
+      const vis = new IntersectionObserver((entries) => {
+        const on = entries.some((e) => e.isIntersecting);
+        if (on && !running) { running = true; clock.getDelta(); loop(); }
+        if (!on) running = false;
+      }, { threshold: 0.01 });
+      vis.observe(stage);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) running = false;
+        else if (!running) { running = true; clock.getDelta(); loop(); }
+      });
+      loop();
+    }
+  }
+</script>
+
+<style>
+  .gpu-stage {
+    position: relative;
+    width: 100%;
+    min-height: 420px;
+    aspect-ratio: 4 / 3;
+    max-height: 520px;
+    background:
+      radial-gradient(58% 52% at 52% 46%, rgba(34, 211, 238, 0.08), transparent 70%),
+      radial-gradient(45% 45% at 50% 62%, rgba(47, 107, 255, 0.06), transparent 72%);
+  }
+  .gpu-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+  .gpu-tag {
+    position: absolute;
+    left: 0; bottom: 6px;
+    z-index: 2;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text-faint);
+    letter-spacing: 0.06em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    opacity: 0;
+    transition: opacity 0.6s ease 0.3s;
+  }
+  .gpu-tag::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    animation: gpu-pulse 1.6s ease-in-out infinite;
+  }
+  .gpu-live .gpu-tag { opacity: 1; }
+  @keyframes gpu-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .gpu-failed { display: none; }
+  @media (prefers-reduced-motion: reduce) { .gpu-tag::before { animation: none; } }
+  @media (max-width: 900px) {
+    .gpu-stage { min-height: 320px; max-height: 380px; aspect-ratio: 16 / 11; }
+  }
+</style>

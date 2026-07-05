@@ -1,0 +1,72 @@
+---
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+const site = Astro.site?.href ?? 'https://nightshade14.github.io/';
+const ogImage = new URL(`${import.meta.env.BASE_URL}/images/satyam_headshot.png`, site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2308090b'/%3E%3Cpath d='M11 10l6 6-6 6' fill='none' stroke='%2322d3ee' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Satyam Chatrola" />
+    <meta name="theme-color" content="#08090b" />
+
+    <!-- Open Graph / social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- If JS is off, the IntersectionObserver reveal never runs — show everything. -->
+    <noscript>
+      <style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style>
+    </noscript>
+  </head>
+  <body>
+    <slot />
+
+    <script>
+      // Scroll-reveal: gentle, one-shot, and skipped entirely for reduced-motion.
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const targets = document.querySelectorAll('[data-reveal]');
+      if (prefersReduced || !('IntersectionObserver' in window)) {
+        targets.forEach((el) => el.classList.add('in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.12 }
+        );
+        targets.forEach((el) => io.observe(el));
+      }
+    </script>
+  </body>
+</html>
