@@ -1,45 +1,38 @@
-<h1 align="center">Satyam Chatrola</h1>
+# satyamchatrola.dev — portfolio
 
-<h2>Background & Education</h2>
-<ul>
-  <li>Machine Learning Engineer</li>
-  <li>NYU Computer Science graduate</li>
-  <li>AWS-certified Machine Learning Engineer</li>
-  <li>1st Runner Up in Qualcomm x Microsoft Edge AI Hackathon</li>
-</ul>
+Personal portfolio for **Satyam Chatrola**, AI Systems Engineer specializing in LLM inference & serving.
 
-<h2>Technical Expertise</h2>
-<ul>
-  <li><strong>Specialized Areas:</strong> Large Language Models, Recommendation Systems, Computer Vision</li>
-  <li><strong>Core Strength:</strong> Transforming complex AI concepts into scalable, production-ready applications</li>
-</ul>
+Live: **https://nightshade14.github.io/satyamchatrola**
 
-<h2>Professional Achievements</h2>
-<ul>
-  <li>Developed hyper-personalized search systems serving 5M+ SKUs</li>
-  <li>Architected facial recognition systems achieving 0.96 F1 scores across 750+ profiles</li>
-  <li>Delivered 7.2% conversion lift through personalized recommendation strategies</li>
-  <li>Increased Click-Through Rate (CTR) by 34% with AI-driven personalization</li>
-  <li>Achieved 7x inference speedups using quantization techniques</li>
-</ul>
+## Stack
 
-<h2>Research & Open-Source Work</h2>
-<ul>
-  <li>Developed RAG-based research assistants</li>
-  <li>Fine-tuned transformers for automated essay scoring (exceeded benchmarks by 5.7%)</li>
-  <li>Created email automation systems reducing processing time by 70%</li>
-  <li>Designed microservices leveraging low-latency inference for real-world applications</li>
-</ul>
+- **[Astro](https://astro.build)** — static, zero-JS-by-default output (fast under any condition)
+- Self-hosted fonts via `@fontsource-variable` (Space Grotesk · Geist · Geist Mono)
+- Single scrolling page, dark theme with one electric-cyan accent
+- One small client script drives the hero "decode" animation + scroll reveals; everything else is static HTML/CSS
+- Deployed to **GitHub Pages via GitHub Actions**
 
-<h2>Professional Focus</h2>
-<ul>
-  <li>Building AI-driven solutions with measurable business impact</li>
-  <li>Performance optimization for AI applications</li>
-  <li>Bridging theoretical AI knowledge with practical implementation</li>
-</ul>
+## Develop
 
-<h2>Connect With Me</h2>
-<ul>
-  <li><a href="https://www.linkedin.com/in/satyamchatrola/" target="blank">LinkedIn</a></li>
-  <li><a href="https://kaggle.com/satyamchatrola" target="blank">Kaggle</a></li>
-</ul>
+```bash
+npm install     # once
+npm run dev      # local dev server (http://localhost:4321/satyamchatrola)
+npm run build    # production build → dist/
+npm run preview  # preview the built site
+```
+
+## Editing content
+
+All copy and data live in `src/pages/index.astro` (top of the file): the hero response,
+`focus`, `highlights`, `creds`, `projects`, and `links` arrays. Design tokens (colors, type
+scale, spacing) are in `src/styles/global.css`. Static assets (headshot, résumé, research PDF)
+are in `public/`.
+
+## Deployment
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds with Astro and publishes
+to GitHub Pages. **One-time setup:** in the repo's **Settings → Pages**, set **Source** to
+**GitHub Actions**.
+
+If the repo is ever renamed to `Nightshade14` (a user page at `nightshade14.github.io`), change
+`base` in `astro.config.mjs` from `'/satyamchatrola'` to `'/'`.

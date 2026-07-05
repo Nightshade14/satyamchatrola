@@ -1,8 +1,18 @@
 # WSL zone identifier files
 *:Zone.Identifier
 
-# ignoring ruby build and serve files and also bundle files
+# --- Astro / Node ---
+dist/
+.astro/
+node_modules/
+npm-debug.log*
+.env
+.env.production
+.DS_Store
+
+# --- legacy Jekyll build/serve/bundle files ---
 **/_site
 **/.jekyll-cache
 **/.bundle
 **/Gemfile.lock
+vendor/
