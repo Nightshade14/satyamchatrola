@@ -11,7 +11,7 @@ const PAPER_URL =
 // The "response" — streamed token by token like a model decoding.
 // Clicking "resample" re-runs the decode with another line from this pool.
 const RESPONSES = [
-  'AI Systems Engineer. I build low-latency systems that serve large language models — from inference optimization and serving infrastructure to ML at planet scale.',
+  'AI Systems Engineer. I build low-latency systems that serve large language models — from inference optimization and serving infrastructure to ML systems under real production load.',
   'AI Systems Engineer. I turn trained models into fast, dependable endpoints — quantization, batching, and caching that cut both latency and cost.',
   'AI Systems Engineer. I care about the last mile of ML: serving it at low latency, high throughput, and low cost — reliably, and at scale.',
   'AI Systems Engineer. From autograd to vLLM, I know the whole stack — so I can make inference genuinely fast, not just barely working.',
@@ -20,8 +20,8 @@ const RESPONSE = RESPONSES[0];
 
 // Count-up figures for the "signal" section — real, from shipped work.
 const stats = [
-  { value: 7, decimals: 0, prefix: '', suffix: '×', label: 'inference speedup' },
-  { value: 0.96, decimals: 2, prefix: '', suffix: '', label: 'F1 · 750+ profiles' },
+  { value: 71, decimals: 0, prefix: '−', suffix: '%', label: 'p99 latency (395ms → 13ms)' },
+  { value: 5, decimals: 0, prefix: '', suffix: '×', label: 'telemetry serialization speedup' },
   { value: 5, decimals: 0, prefix: '', suffix: 'M+', label: 'SKUs searched' },
   { value: 34, decimals: 0, prefix: '+', suffix: '%', label: 'click-through lift' },
 ];
@@ -45,23 +45,32 @@ const focus = [
   {
     k: 'scale',
     title: 'Scale & reliability',
-    body: 'Designing planet-scale AI systems with software-engineering rigor and MLOps discipline — efficient, observable, and robust in production.',
+    body: 'Designing AI systems with software-engineering rigor and MLOps discipline — efficient, observable, and robust under real production load.',
   },
 ];
 
 const highlights = [
-  'Delivered up to 7× inference speedups through quantization, and shipped low-latency inference microservices into production.',
-  'Architected a real-time facial recognition & authentication system reaching 0.96 F1 across 750+ profiles on live video — new identities enroll with no retraining.',
-  'Built hyper-personalized search over 5M+ SKUs and recommenders that lifted conversion 7.2% and click-through 34%.',
+  'Cut p99 latency from 395ms to 13ms in production by moving blocking calls off the asyncio event loop, preserving session ordering.',
+  'Sustained throughput under heavy concurrent load with an async logging queue — watermark-based load-shedding and eventual-consistency backpressure to minimize GIL contention.',
+  'Shrank a deploy footprint from 14GB to 355MB and cut PR-to-prod from 30 minutes to under 7 by re-architecting multi-stage Docker builds.',
+  'Root-caused a production traffic-skew incident — recognized by engineering leadership — by isolating silent misrouting between builds during a Jenkins-to-ArgoCD migration.',
+  'Architected a hybrid retrieval system (two-tower NN + FAISS + BM25) scaling to 5M+ SKUs — lifting conversion 7.2% and click-through 34%, driving $300K+ ARR.',
 ];
 
 const creds = [
-  'AWS-Certified ML Engineer',
-  '1st Runner-Up · Qualcomm × Microsoft Edge AI Hackathon',
+  'Quoted in Qualcomm\'s developer blog · On-Device AI Builders Hackathon',
   'MS Computer Science · NYU',
 ];
 
 const projects = [
+  {
+    name: 'care-companion',
+    tag: 'serving · Triton',
+    desc: 'Production-grade CNN inference service (P90 250ms) on FastAPI & NVIDIA Triton — GPU (TensorRT) and CPU (OpenVINO) backends, plus a full Prometheus/Grafana stack detecting data drift and model degradation in real time.',
+    lang: 'Docker',
+    star: 0,
+    url: 'https://github.com/care-ai-mlops/care-companion',
+  },
   {
     name: 'research-mate',
     tag: 'RAG · latency',
@@ -112,6 +121,25 @@ const projects = [
   },
 ];
 
+const articles = [
+  {
+    title: "A Pragmatic Engineer's Guide to OOMs, NCCL, and Resilience in Large-Scale Training",
+    desc: 'What actually breaks when training falls off the single-GPU happy path — memory blowups, collective-communication failures, and the resilience patterns that keep large runs alive.',
+    url: 'https://satyamchatrola.substack.com/p/hyperscale-distributed-llm-training',
+  },
+  {
+    title: 'The Transformer Architecture: A First-Principles Analysis from Self-Attention to KV Caching',
+    desc: 'Deconstructing the transformer from self-attention up through the KV cache — the mechanics that decode-time inference optimization is actually built on.',
+    url: 'https://satyamchatrola.substack.com/p/from-tokens-to-text-deconstructing',
+  },
+];
+
+const feature = {
+  quote: 'Quoted by name on the power efficiency of on-device LLM inference.',
+  event: 'On-Device AI Builders Hackathon · Qualcomm × LM Studio × Microsoft, hosted at NYU Tandon',
+  url: 'https://www.qualcomm.com/developer/blog/2024/12/on-device-ai-builders-hackathon-qualcomm-lmstudio-microsoft',
+};
+
 const links = [
   { label: 'GitHub', handle: '@Nightshade14', url: 'https://github.com/Nightshade14' },
   { label: 'LinkedIn', handle: 'in/satyamchatrola', url: 'https://www.linkedin.com/in/satyamchatrola' },
@@ -140,7 +168,7 @@ const links = [
       <nav class="nav-links" aria-label="Primary">
         <a href="#focus">focus</a>
         <a href="#work">work</a>
-        <a href="#research">research</a>
+        <a href="#writing">writing</a>
         <a class="btn btn-sm" href={RESUME} target="_blank" rel="noopener">Résumé <span aria-hidden="true">↗</span></a>
       </nav>
     </div>
@@ -243,10 +271,10 @@ const links = [
           </div>
           <div class="exp-body" data-reveal style="--reveal-delay: 90ms">
             <p>
-              I'm an AI Systems Engineer and MS Computer Science student at NYU, focused on the part of
-              machine learning that decides whether it's actually useful: <strong>how it's served.</strong>{' '}
-              My work sits where software engineering, systems, and ML meet — making inference fast, cheap,
-              and reliable at scale.
+              I'm an AI Systems Engineer at Mursion, focused on the part of AI that decides whether it's
+              actually usable in production: <strong>how fast it responds, under real load.</strong>{' '}
+              My work sits where async systems, concurrency, and ML serving meet — and I'm deepening
+              further into LLM inference-serving: throughput, KV-cache efficiency, and tail latency at scale.
             </p>
             <ul class="exp-list">
               {highlights.map((h) => <li>{h}</li>)}
@@ -305,6 +333,28 @@ const links = [
             </a>
             <a class="paper-pdf" href={PAPER_PDF} target="_blank" rel="noopener">PDF</a>
           </div>
+        </div>
+      </section>
+
+      <!-- ================= WRITING ================= -->
+      <section id="writing" class="section shell">
+        <p class="eyebrow" data-reveal>writing</p>
+        <h2 class="section-title" data-reveal>Deep dives</h2>
+        <a class="feature-strip" href={feature.url} target="_blank" rel="noopener" data-reveal>
+          <span class="feature-badge">Featured</span>
+          <span class="feature-text">
+            {feature.quote} <span class="feature-event">{feature.event}</span>
+          </span>
+          <span class="feature-open" aria-hidden="true">↗</span>
+        </a>
+        <div class="write-grid">
+          {articles.map((a, i) => (
+            <a class="write-card" href={a.url} target="_blank" rel="noopener" data-reveal style={`--reveal-delay: ${i * 70}ms`}>
+              <h3 class="write-title">{a.title}</h3>
+              <p class="write-desc">{a.desc}</p>
+              <span class="write-cta">Read on DeepDives <span aria-hidden="true">↗</span></span>
+            </a>
+          ))}
         </div>
       </section>
 
@@ -1028,6 +1078,64 @@ const links = [
       transition: border-color 0.2s, color 0.2s;
     }
     .paper-pdf:hover { color: var(--text); border-color: var(--text); }
+
+    /* ---- writing ---- */
+    .feature-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem 1.3rem;
+      margin-bottom: 1.6rem;
+      background: color-mix(in oklab, var(--panel) 82%, transparent);
+      transition: border-color 0.28s, background 0.28s, transform 0.28s;
+    }
+    .feature-strip:hover {
+      border-color: var(--accent-line);
+      background: var(--panel-2);
+      transform: translateY(-2px);
+    }
+    .feature-badge {
+      flex: 0 0 auto;
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      color: var(--accent);
+      padding: 0.2em 0.6em;
+      border: 1px solid var(--accent-line);
+      border-radius: 999px;
+      background: var(--accent-dim);
+    }
+    .feature-text { color: var(--text-dim); font-size: var(--step--1); line-height: 1.5; }
+    .feature-event { display: block; color: var(--text-faint); font-family: var(--font-mono); margin-top: 0.3em; }
+    .feature-open { flex: 0 0 auto; margin-left: auto; color: var(--text-faint); font-family: var(--font-mono); }
+    .write-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .write-card {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      background: color-mix(in oklab, var(--panel) 82%, transparent);
+      transition: border-color 0.28s, background 0.28s, transform 0.28s;
+    }
+    .write-card:hover {
+      border-color: var(--accent-line);
+      background: var(--panel-2);
+      transform: translateY(-3px);
+    }
+    .write-title { font-size: var(--step-1); line-height: 1.25; margin: 0 0 0.7rem; }
+    .write-desc { color: var(--text-dim); font-size: var(--step--1); line-height: 1.55; flex: 1; }
+    .write-cta {
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      color: var(--accent);
+      margin-top: 1.2rem;
+    }
+    @media (max-width: 680px) {
+      .write-grid { grid-template-columns: 1fr; }
+      .feature-strip { flex-wrap: wrap; }
+    }
 
     /* ===================== FOOTER ===================== */
     .footer {
