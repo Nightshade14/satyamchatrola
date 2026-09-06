@@ -9,6 +9,7 @@ npm-debug.log*
 .env
 .env.production
 .DS_Store
+public/draco/
 
 # --- legacy Jekyll build/serve/bundle files ---
 **/_site

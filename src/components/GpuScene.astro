@@ -1,82 +1,106 @@
 ---
-// The engine. A fixed, full-viewport WebGL backdrop that the whole page
-// "boots" on: at load the GPU fills the screen; as you scroll the camera
-// dollies back and the canvas crossfades (via the CSS `--boot` var, set by
-// the page script) to a faint always-running ambient presence behind the
-// content. Real .glb + HDRI studio lighting; lazy-loaded; degrades to a
-// quiet particle field if WebGL or the model is unavailable.
+// Decorative, demand-loaded scene. Content never waits for WebGL.
 ---
 
 <div id="engine" aria-hidden="true"></div>
 
 <script>
+  import { createFrameLoop } from '../scripts/animation-loop.js';
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
   const MODEL_URL = `${BASE}/models/geforce_rtx_3080_graphics_card.glb`;
   const HDRI_URL = `${BASE}/hdri/studio.hdr`;
 
   const stage = document.getElementById('engine');
-  if (stage) {
-    const kickoff = () => {
-      const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
-      idle(() => boot(stage));
-    };
-    kickoff();
-  }
+  const hero = document.querySelector('.stage');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const connection = navigator.connection;
+  let heroVisible = !!hero && hero.getBoundingClientRect().bottom > 0;
+  let pageActive = true;
+  let booted = false;
+  let disposed = false;
+  let syncScene = () => {};
+  let disposeScene = () => {};
+  const events = new AbortController();
+  const eligible = () => heroVisible && pageActive && !document.hidden &&
+    !reduced.matches && !connection?.saveData &&
+    !document.documentElement.classList.contains('motion-paused');
 
-  // Boot progress: 0 = engine full-screen, 1 = site booted. The page script
-  // owns the canonical value on window.__bootP and the CSS `--boot` var.
+  function activate() {
+    syncScene();
+    if (!stage || booted || !eligible()) return;
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
+    idle(() => {
+      if (!eligible() || disposed) return;
+      void boot(stage).catch(() => {
+        disposed = true;
+        disposeScene();
+        stage.classList.add('engine-failed');
+      });
+    });
+  }
+  const heroObserver = hero && 'IntersectionObserver' in window
+    ? new IntersectionObserver(([entry]) => { heroVisible = entry.isIntersecting; activate(); })
+    : null;
+  if (heroObserver) heroObserver.observe(hero);
+  else window.addEventListener('scroll', () => {
+    heroVisible = !!hero && hero.getBoundingClientRect().bottom > 0;
+    activate();
+  }, { passive: true, signal: events.signal });
+  document.addEventListener('visibilitychange', activate, { signal: events.signal });
+  reduced.addEventListener('change', activate, { signal: events.signal });
+  connection?.addEventListener('change', activate, { signal: events.signal });
+  window.addEventListener('portfolio:motion', activate, { signal: events.signal });
+  window.addEventListener('pagehide', (event) => {
+    pageActive = false;
+    syncScene();
+    if (!event.persisted) {
+      disposed = true;
+      disposeScene();
+      heroObserver?.disconnect();
+      events.abort();
+    }
+  }, { signal: events.signal });
+  window.addEventListener('pageshow', () => { pageActive = true; activate(); }, { signal: events.signal });
+  activate();
+
   const bootP = () => (typeof window.__bootP === 'number' ? window.__bootP : 0);
 
-  let booted = false;
   async function boot(stage) {
     if (booted) return;
     booted = true;
 
-    // Tell the hero the engine has come online (or failed) exactly once, so it
-    // can flip "spinning up…" → "online" and spin up the telemetry in sync.
-    let readySignaled = false;
-    const signalReady = () => {
-      if (readySignaled) return;
-      readySignaled = true;
-      try { window.dispatchEvent(new CustomEvent('engine:ready')); } catch (e) {}
-    };
-
-    let THREE, GLTFLoader, DRACOLoader, RGBELoader, MeshoptDecoder;
-    let EffectComposer, RenderPass, UnrealBloomPass, OutputPass;
-    try {
-      THREE = await import('three');
-      ({ GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'));
-      ({ DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js'));
-      ({ RGBELoader } = await import('three/addons/loaders/RGBELoader.js'));
-      ({ MeshoptDecoder } = await import('three/addons/libs/meshopt_decoder.module.js'));
-      ({ EffectComposer } = await import('three/addons/postprocessing/EffectComposer.js'));
-      ({ RenderPass } = await import('three/addons/postprocessing/RenderPass.js'));
-      ({ UnrealBloomPass } = await import('three/addons/postprocessing/UnrealBloomPass.js'));
-      ({ OutputPass } = await import('three/addons/postprocessing/OutputPass.js'));
-    } catch (e) {
-      stage.classList.add('engine-failed');
-      signalReady();
-      return;
-    }
-
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    stage.classList.add('engine-loading');
+    const coarse = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 680;
     const finePointer = window.matchMedia('(pointer: fine)').matches;
-    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const [THREE, { GLTFLoader }, { DRACOLoader }, { HDRLoader }] = await Promise.all([
+      import('three'),
+      import('three/addons/loaders/GLTFLoader.js'),
+      import('three/addons/loaders/DRACOLoader.js'),
+      import('three/addons/loaders/HDRLoader.js'),
+    ]);
+    const postprocessing = coarse ? null : await Promise.all([
+        import('three/addons/postprocessing/EffectComposer.js'),
+        import('three/addons/postprocessing/RenderPass.js'),
+        import('three/addons/postprocessing/UnrealBloomPass.js'),
+        import('three/addons/postprocessing/OutputPass.js'),
+      ]);
+    if (disposed) return;
+    if (!eligible()) { booted = false; stage.classList.remove('engine-loading'); return; }
 
     let width = window.innerWidth;
     let height = window.innerHeight;
 
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
       if (!renderer.getContext()) throw new Error('no webgl');
     } catch (e) {
       stage.classList.add('engine-failed');
-      signalReady();
       return;
     }
     // Full-screen fill rate is the cost driver — cap DPR harder on touch.
-    const DPR = Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 2);
+    const pixelRatio = () => Math.min(window.devicePixelRatio || 1, coarse ? 1 : 1.5, Math.sqrt(2_000_000 / (width * height)));
+    const DPR = pixelRatio();
     renderer.setPixelRatio(DPR);
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0);
@@ -91,13 +115,9 @@
     camera.lookAt(0, 0, 0);
 
     // ---------- HDRI environment (accurate reflections on metal) ----------
+    let environmentTarget = null;
     const pmrem = new THREE.PMREMGenerator(renderer);
-    pmrem.compileEquirectangularShader();
-    new RGBELoader().load(HDRI_URL, (hdr) => {
-      const env = pmrem.fromEquirectangular(hdr).texture;
-      scene.environment = env;
-      hdr.dispose();
-    });
+    scene.add(new THREE.HemisphereLight(0xbfdcff, 0x111826, 0.6));
 
     // soft key + cool rim + a cyan underglow (the accent), so the card reads
     const key = new THREE.DirectionalLight(0xffffff, 1.35);
@@ -118,20 +138,33 @@
     scene.add(rig);
 
     // ---------- bloom for the glow (ramps down as the site boots) ----------
-    const composer = new EffectComposer(renderer);
-    composer.setPixelRatio(DPR);
-    composer.setSize(width, height);
-    composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.34, 0.7, 0.82);
-    composer.addPass(bloom);
-    composer.addPass(new OutputPass());
+    // Mobile uses a single render pass; bloom allocates several full-size targets.
+    let composer = null, bloom = null;
+    disposeScene = () => {
+      pmrem.dispose();
+      environmentTarget?.dispose();
+      composer?.passes.forEach(pass => pass.dispose?.());
+      composer?.dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
+    };
+    if (!coarse) {
+      const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }] = postprocessing;
+      composer = new EffectComposer(renderer);
+      composer.setPixelRatio(DPR);
+      composer.setSize(width, height);
+      composer.addPass(new RenderPass(scene, camera));
+      bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.34, 0.7, 0.82);
+      composer.addPass(bloom);
+      composer.addPass(new OutputPass());
+    }
 
     // ---------- load the model ----------
     const draco = new DRACOLoader();
-    draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+    draco.setDecoderPath(`${BASE}/draco/`);
+    draco.setWorkerLimit(1);
     const loader = new GLTFLoader();
     loader.setDRACOLoader(draco);
-    loader.setMeshoptDecoder(MeshoptDecoder);
 
     let model = null;
     let mixer = null;
@@ -141,7 +174,6 @@
     const INTRO = 2.6; // seconds — slow, smooth phase-in
     let introT = null, introBloom = 0;
     const startIntro = () => {
-      if (prefersReduced) return;
       rig.scale.setScalar(0.92);
       introT = clock.elapsedTime;
     };
@@ -158,6 +190,7 @@
     loader.load(
       MODEL_URL,
       (gltf) => {
+        if (disposed) { disposeObject(gltf.scene); return; }
         model = gltf.scene;
 
         // ---- auto-orient with proper rotations only (no mirroring) ----
@@ -205,7 +238,7 @@
         rig.add(model);
 
         // spin the fans via the model's own armature clip
-        if (gltf.animations && gltf.animations.length && !prefersReduced) {
+        if (gltf.animations && gltf.animations.length) {
           mixer = new THREE.AnimationMixer(model);
           const clip = gltf.animations.find((c) => /1200/.test(c.name))
             || gltf.animations.find((c) => /rpm/.test(c.name)) || gltf.animations[0];
@@ -226,15 +259,18 @@
         buildAirflow();
 
         stage.classList.add('engine-live');
-        signalReady();
-        if (prefersReduced) settle(); else startIntro();
+          startIntro();
+        drawOnce();
+        syncScene();
       },
       undefined,
       () => {
+        if (disposed) return;
         buildFallback();
         stage.classList.add('engine-live', 'engine-nomodel');
-        signalReady();
-        if (prefersReduced) settle(); else startIntro();
+          startIntro();
+        drawOnce();
+        syncScene();
       },
     );
 
@@ -298,11 +334,11 @@
     rig.rotation.set(ROT_X, ROT_Y, 0);
 
     let pointerX = 0, pointerY = 0;
-    if (!prefersReduced && finePointer) {
+    if (finePointer) {
       window.addEventListener('pointermove', (e) => {
         pointerX = (e.clientX / window.innerWidth) * 2 - 1;
         pointerY = (e.clientY / window.innerHeight) * 2 - 1;
-      }, { passive: true });
+      }, { passive: true, signal: events.signal });
     }
 
     const onResize = () => {
@@ -310,16 +346,17 @@
       height = window.innerHeight;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(pixelRatio());
       renderer.setSize(width, height);
-      composer.setSize(width, height);
+      composer?.setPixelRatio(pixelRatio());
+      composer?.setSize(width, height);
       refit();
-      if (prefersReduced) settle();
+      if (heroVisible && !document.hidden) drawOnce();
     };
-    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true, signal: events.signal });
 
     const clock = new THREE.Clock();
-    let running = true;
-    let frameNo = 0;
+
 
     // Render one frame at the current boot/camera state (no animation stepping).
     function drawOnce() {
@@ -327,16 +364,8 @@
       camera.position.z = baseZ + p * baseZ * 0.7;
       camera.position.y = 0.2 + p * 0.6;
       camera.lookAt(0, 0, 0);
-      bloom.strength = 0.34 - p * 0.22;
-      composer.render();
-    }
-
-    // For reduced motion / static: render a handful of frames so a late model
-    // or environment map still shows, then hold.
-    function settle() {
-      let n = 0;
-      const step = () => { drawOnce(); if (n++ < 90) requestAnimationFrame(step); };
-      step();
+      if (bloom) bloom.strength = 0.34 - p * 0.22;
+      if (composer) composer.render(); else renderer.render(scene, camera);
     }
 
     function frame() {
@@ -377,7 +406,7 @@
       camera.position.z = baseZ + p * baseZ * 0.7 + Math.sin(t * 0.25) * 0.05;
       camera.position.y = 0.2 + p * 0.6;
       camera.lookAt(0, 0, 0);
-      bloom.strength = (0.34 - p * 0.22) + introBloom;
+      if (bloom) bloom.strength = (0.34 - p * 0.22) + introBloom;
 
       // gentle float + sway + pointer parallax (eased out as the site boots)
       const parallax = 1 - p * 0.7;
@@ -391,28 +420,54 @@
 
       if (points) points.rotation.y += dt * 0.05;
 
-      composer.render();
+      if (composer) composer.render(); else renderer.render(scene, camera);
     }
 
-    function loop() {
-      if (!running) return;
-      requestAnimationFrame(loop);
-      frameNo++;
-      // Once mostly booted the engine is just ambient — halve its frame rate.
-      if (bootP() >= 0.9 && (frameNo & 1)) return;
-      frame();
-    }
-
-    if (prefersReduced) {
-      // static: opacity crossfade (CSS `--boot`) carries the transition
-      settle();
-    } else {
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) { running = false; }
-        else if (!running) { running = true; clock.getDelta(); loop(); }
+    const loop = createFrameLoop(frame);
+    syncScene = () => {
+      if (!disposed && eligible() && stage.classList.contains('engine-live')) {
+        clock.getDelta();
+        loop.start();
+      } else {
+        loop.stop();
+      }
+    };
+    function disposeObject(object) {
+      const resources = new Set();
+      object.traverse((node) => {
+        if (node.geometry) resources.add(node.geometry);
+        if (node.skeleton) resources.add(node.skeleton);
+        const materials = node.material ? (Array.isArray(node.material) ? node.material : [node.material]) : [];
+        for (const material of materials) {
+          resources.add(material);
+          for (const value of Object.values(material)) if (value?.isTexture) resources.add(value);
+        }
       });
-      loop();
+      resources.forEach(resource => resource.dispose());
     }
+    disposeScene = () => {
+      loop.stop();
+      mixer?.stopAllAction();
+      if (model) mixer?.uncacheRoot(model);
+      disposeObject(scene);
+      environmentTarget?.dispose();
+      pmrem.dispose();
+      draco.dispose();
+      composer?.passes.forEach(pass => pass.dispose?.());
+      composer?.dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
+    };
+    new HDRLoader().load(HDRI_URL, (hdr) => {
+      if (!disposed) {
+        environmentTarget = pmrem.fromEquirectangular(hdr);
+        scene.environment = environmentTarget.texture;
+        drawOnce();
+      }
+      hdr.dispose();
+      pmrem.dispose();
+    }, undefined, () => { pmrem.dispose(); });
+    syncScene();
   }
 </script>
 
@@ -422,7 +477,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    /* crossfade to a faint always-running presence as the site boots
+    /* crossfade to a static ambient presence beyond the hero
        (no transition here — must track scroll instantly) */
     opacity: calc(1 - var(--boot) * 0.82);
   }
@@ -436,8 +491,9 @@
     background:
       radial-gradient(60% 55% at 50% 46%, rgba(34, 211, 238, 0.11), transparent 70%),
       radial-gradient(50% 50% at 50% 64%, rgba(47, 107, 255, 0.08), transparent 72%);
-    animation: engine-charge 2.6s ease-in-out infinite;
+    opacity: 0.8;
   }
+  #engine.engine-loading:not(.engine-live)::before { animation: engine-charge 2.6s ease-in-out 3; }
   @keyframes engine-charge {
     0%, 100% { opacity: 0.45; transform: scale(0.955); }
     50%      { opacity: 1;    transform: scale(1.035); }
