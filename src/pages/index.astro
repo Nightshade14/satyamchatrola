@@ -20,7 +20,7 @@ const RESPONSE = RESPONSES[0];
 
 // Count-up figures for the "signal" section — real, from shipped work.
 const stats = [
-  { value: 71, decimals: 0, prefix: '−', suffix: '%', label: 'p99 latency (395ms → 13ms)' },
+  { value: 71, decimals: 0, prefix: '−', suffix: '%', label: 'p99 latency reduction' },
   { value: 5, decimals: 0, prefix: '', suffix: '×', label: 'telemetry serialization speedup' },
   { value: 5, decimals: 0, prefix: '', suffix: 'M+', label: 'SKUs searched' },
   { value: 34, decimals: 0, prefix: '+', suffix: '%', label: 'click-through lift' },
@@ -50,7 +50,7 @@ const focus = [
 ];
 
 const highlights = [
-  'Cut p99 latency from 395ms to 13ms in production by moving blocking calls off the asyncio event loop, preserving session ordering.',
+  'Cut p99 latency by 71% in production by moving blocking calls off the asyncio event loop, preserving session ordering.',
   'Sustained throughput under heavy concurrent load with an async logging queue — watermark-based load-shedding and eventual-consistency backpressure to minimize GIL contention.',
   'Shrank a deploy footprint from 14GB to 355MB and cut PR-to-prod from 30 minutes to under 7 by re-architecting multi-stage Docker builds.',
   'Root-caused a production traffic-skew incident — recognized by engineering leadership — by isolating silent misrouting between builds during a Jenkins-to-ArgoCD migration.',
@@ -174,30 +174,31 @@ const links = [
     </div>
   </header>
 
-  <main id="top">
+  <main id="top" tabindex="-1">
     <!-- ================= HERO (overlay on the engine) ================= -->
     <section class="stage">
       <div class="shell stage-inner">
-        <p class="eyebrow eyebrow-live" data-hero>inference engine — online</p>
+        <p class="eyebrow eyebrow-live" data-hero>inference engine — demo</p>
 
         <h1 class="hero-name" data-hero style="--reveal-delay: 90ms">
           Satyam<br />Chatrola
         </h1>
 
         <p class="hero-role" data-hero style="--reveal-delay: 180ms">
-          AI&nbsp;Systems&nbsp;Engineer <span class="role-sep">·</span> LLM&nbsp;inference&nbsp;&amp;&nbsp;serving
+          AI Systems Engineer <span class="role-sep">·</span> LLM inference &amp; serving
         </p>
 
         <p class="hero-readout" data-hero style="--reveal-delay: 250ms" aria-hidden="true">
-          <span class="ro-dot"></span>online
-          <span class="ro-sep">·</span> <span id="ro-tps">—</span>&nbsp;tok/s
-          <span class="ro-sep">·</span> TTFT&nbsp;<span id="ro-ttft">—</span>
-          <span class="ro-sep">·</span> util&nbsp;<span id="ro-util">—</span>%
+          <span class="ro-dot"></span>demo
+          <span class="ro-sep">·</span> <span><span id="ro-tps">128</span>&nbsp;tok/s</span>
+          <span class="ro-sep">·</span> <span>TTFT&nbsp;<span id="ro-ttft">41ms</span></span>
+          <span class="ro-sep">·</span> <span>util&nbsp;<span id="ro-util">94</span>%</span>
         </p>
 
         <div class="hero-cta" data-hero style="--reveal-delay: 330ms">
           <a class="btn btn-primary" data-magnetic href="#work">View work</a>
           <a class="btn" data-magnetic href={RESUME} target="_blank" rel="noopener">Download résumé <span aria-hidden="true">↗</span></a>
+          <button class="btn" id="motion-toggle" type="button" aria-pressed="false" hidden>Pause animation</button>
         </div>
       </div>
 
@@ -214,10 +215,12 @@ const links = [
         <p class="prompt" data-reveal style="--reveal-delay: 70ms"><span class="prompt-caret">&gt;</span> whoami</p>
 
         <p class="decode-line" data-reveal style="--reveal-delay: 140ms">
-          <span id="decode" data-full={RESPONSE} aria-label={RESPONSE}></span><span class="cursor" id="cursor" aria-hidden="true"></span>
+          <span class="sr-only" id="decode-accessible" aria-live="polite">{RESPONSE}</span>
+          {RESPONSES.map(text => <span class="decode-reserve" aria-hidden="true">{text}</span>)}
+          <span class="decode-output" aria-hidden="true"><span id="decode">{RESPONSE}</span><span class="cursor" id="cursor"></span></span>
         </p>
 
-        <div class="decode-meta" data-reveal style="--reveal-delay: 220ms">
+        <div class="decode-meta" data-reveal style="--reveal-delay: 220ms" hidden>
           <div class="telemetry" aria-hidden="true">
             <span class="tel-item"><span id="tokcount">0</span> tokens</span>
             <span class="tel-sep">·</span>
@@ -263,7 +266,7 @@ const links = [
                     data-decimals={s.decimals}
                     data-prefix={s.prefix}
                     data-suffix={s.suffix}
-                  >{s.prefix}0{s.suffix}</span>
+                  >{s.prefix}{s.value.toFixed(s.decimals)}{s.suffix}</span>
                   <span class="stat-label">{s.label}</span>
                 </div>
               ))}
@@ -384,8 +387,21 @@ const links = [
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const finePointer = window.matchMedia('(pointer: fine)').matches;
     const interactive = finePointer && !prefersReduced;
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const motionToggle = document.getElementById('motion-toggle');
+    let manuallyPaused = false;
+    function updateMotion() {
+      const paused = manuallyPaused || motionPreference.matches;
+      document.documentElement.classList.toggle('motion-paused', paused);
+      motionToggle.hidden = motionPreference.matches;
+      motionToggle.setAttribute('aria-pressed', String(paused));
+      motionToggle.textContent = paused ? 'Resume animation' : 'Pause animation';
+      window.dispatchEvent(new CustomEvent('portfolio:motion'));
+    }
+    motionToggle.addEventListener('click', () => { manuallyPaused = !manuallyPaused; updateMotion(); });
+    motionPreference.addEventListener('change', updateMotion);
 
-    /* ---- Boot progress: scroll 0 → ~1 viewport drives the engine crossfade + hero fade. ---- */
+    /* ---- Boot progress: scroll 0 → ~1 viewport drives the engine crossfade. ---- */
     const BOOT_SPAN = 1.05; // viewport-heights of scroll to finish "booting"
     const root = document.documentElement;
     window.__bootP = 0;
@@ -401,54 +417,6 @@ const links = [
     window.addEventListener('resize', requestBoot, { passive: true });
     setBoot();
 
-    /* ---- Hero readout: the engine "comes online" when the 3D engine is ready. ---- */
-    const roTps = document.getElementById('ro-tps');
-    const roTtft = document.getElementById('ro-ttft');
-    const roUtil = document.getElementById('ro-util');
-    function spinUp() {
-      if (prefersReduced) {
-        if (roTps) roTps.textContent = '128';
-        if (roTtft) roTtft.textContent = '41ms';
-        if (roUtil) roUtil.textContent = '94';
-        return;
-      }
-      const dur = 1400, start = performance.now();
-      const tick = (now) => {
-        const t = Math.min((now - start) / dur, 1);
-        const e = 1 - Math.pow(1 - t, 3);
-        if (roTps) roTps.textContent = String(Math.round(e * 128));
-        if (roUtil) roUtil.textContent = String(Math.round(e * 94));
-        if (roTtft) roTtft.textContent = t < 0.55 ? '—' : '41ms';
-        if (t < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    }
-
-    // Phase the hero text in only AFTER the engine has rendered: a short beat
-    // once it reports ready (so the GPU has visibly materialized first), or
-    // immediately if it failed / on a safety timeout — the hero never sticks.
-    const stageInner = document.querySelector('.stage-inner');
-    let heroLit = false, revealScheduled = false;
-    function litHero() {
-      if (heroLit) return;
-      heroLit = true;
-      if (stageInner) stageInner.classList.add('hero-lit');
-      spinUp();
-    }
-    function scheduleHero(delay) {
-      if (revealScheduled) return;
-      revealScheduled = true;
-      setTimeout(litHero, prefersReduced ? 0 : delay);
-    }
-    if (prefersReduced) {
-      litHero(); // no phase-in for reduced motion — show it right away
-    } else {
-      // a short beat after the engine reports ready lets the GPU start
-      // materializing before the text writes over it.
-      window.addEventListener('engine:ready', () => scheduleHero(350));
-      setTimeout(() => scheduleHero(0), 3400); // safety: never leave the hero blank
-    }
-
     /* ---- Signature: stream the "response" token by token, re-runnable via "resample". ---- */
     const el = document.getElementById('decode');
     const cursor = document.getElementById('cursor');
@@ -457,6 +425,7 @@ const links = [
     const fill = document.getElementById('telfill');
     const statusEl = document.getElementById('telstatus');
     const regen = document.getElementById('regen');
+    document.querySelector('.decode-meta').hidden = false;
     let decodeToken = 0;
     let respIndex = 0;
 
@@ -472,9 +441,10 @@ const links = [
 
     function runDecode(text, lead) {
       const myToken = ++decodeToken; // supersede any in-flight decode
-      el.setAttribute('aria-label', text);
+      if (!el) return;
+      document.getElementById('decode-accessible').textContent = text;
       const tokens = text.match(/\s*\S+/g) || [text];
-      if (prefersReduced || !el) { setDone(text, tokens.length, 187); return; }
+      if (prefersReduced || document.documentElement.classList.contains('motion-paused')) { setDone(text, tokens.length, 187); return; }
       el.textContent = '';
       tokEl.textContent = '0';
       fill.style.width = '0%';
@@ -522,11 +492,21 @@ const links = [
       });
     }
 
+    window.addEventListener('portfolio:motion', () => {
+      if (root.classList.contains('motion-paused')) {
+        decodeToken++;
+        const text = RESPONSES[respIndex];
+        setDone(text, (text.match(/\s*\S+/g) || []).length, '—');
+        document.querySelectorAll('[data-magnetic], [data-tilt]').forEach(node => { node.style.transform = ''; });
+      }
+    });
+    updateMotion();
+
     /* ---- Magnetic buttons: gently pull toward the pointer, spring back on leave. ---- */
     if (interactive) {
       document.querySelectorAll('[data-magnetic]').forEach((node) => {
-        node.style.willChange = 'transform';
         node.addEventListener('pointermove', (e) => {
+          if (root.classList.contains('motion-paused')) return;
           const r = node.getBoundingClientRect();
           const mx = e.clientX - (r.left + r.width / 2);
           const my = e.clientY - (r.top + r.height / 2);
@@ -541,6 +521,7 @@ const links = [
         const MAX = 6;
         card.addEventListener('pointerenter', () => { card.style.transition = 'transform 0.05s linear'; });
         card.addEventListener('pointermove', (e) => {
+          if (root.classList.contains('motion-paused')) return;
           const r = card.getBoundingClientRect();
           const px = (e.clientX - r.left) / r.width;
           const py = (e.clientY - r.top) / r.height;
@@ -568,10 +549,11 @@ const links = [
       const prefix = node.dataset.prefix || '';
       const suffix = node.dataset.suffix || '';
       const render = (v) => { node.textContent = prefix + v.toFixed(decimals) + suffix; };
-      if (prefersReduced) { render(target); return; }
+      if (prefersReduced || root.classList.contains('motion-paused')) { render(target); return; }
       const dur = 1100, start = performance.now();
       const tick = (now) => {
         const t = Math.min((now - start) / dur, 1);
+        if (root.classList.contains('motion-paused')) { render(target); return; }
         render(target * (1 - Math.pow(1 - t, 3)));
         if (t < 1) requestAnimationFrame(tick);
       };
@@ -658,6 +640,9 @@ const links = [
       background: color-mix(in oklab, var(--void) 40%, transparent);
       transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.2s;
       white-space: nowrap;
+      min-height: 44px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4em;
+      cursor: pointer;
     }
     .btn:hover { border-color: var(--text); transform: translateY(-1px); }
     .btn-sm { padding: 0.5em 0.95em; }
@@ -677,8 +662,9 @@ const links = [
     .stage {
       position: relative;
       z-index: 1;
-      height: 100svh;
-      min-height: 34rem;
+      min-height: calc(100svh - 62px);
+      height: auto;
+      min-height: max(34rem, calc(100svh - 62px));
       display: flex;
       align-items: flex-end;
       /* leave clear room below the copy for the scroll cue */
@@ -693,25 +679,15 @@ const links = [
       inset: 0;
       z-index: -1;
       pointer-events: none;
-      background: linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--void) 82%, transparent) 100%);
+      background: linear-gradient(90deg, rgba(5,7,13,0.8), rgba(5,7,13,0.15)),
+        linear-gradient(180deg, transparent 20%, rgba(5,7,13,0.9) 100%);
     }
-    /* the whole hero dissolves upward as the site boots */
+    /* Keep the identity and actions readable throughout the hero. */
     .stage-inner {
-      opacity: calc(1 - var(--boot) * 1.7);
-      transform: translateY(calc(var(--boot) * -42px));
-      will-change: opacity, transform;
+      opacity: 1;
     }
-    /* hero text phases in only AFTER the engine renders — JS adds .hero-lit,
-       then each item eases up on its own staggered delay */
-    [data-hero] { opacity: 0; transform: translateY(18px); }
-    .hero-lit [data-hero] {
-      animation: hero-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      animation-delay: var(--reveal-delay, 0ms);
-    }
-    @keyframes hero-in { to { opacity: 1; transform: none; } }
-    @media (prefers-reduced-motion: reduce) {
-      [data-hero] { opacity: 1; transform: none; animation: none; }
-    }
+    /* Essential content is visible before scripts or the decorative scene load. */
+    [data-hero] { opacity: 1; transform: none; }
 
     .eyebrow-live::before { animation: gpu-pulse 1.6s ease-in-out infinite; }
     @keyframes gpu-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.32; } }
@@ -820,6 +796,9 @@ const links = [
       min-height: 4.6em;
       margin: 1.1rem 0 1.4rem;
     }
+    .decode-line { display: grid; }
+    .decode-reserve, .decode-output { grid-area: 1 / 1; min-width: 0; }
+    .decode-reserve { visibility: hidden; pointer-events: none; padding-right: 1ch; }
     .decode-line strong { color: var(--accent); font-weight: inherit; }
     .cursor {
       display: inline-block;
@@ -863,6 +842,7 @@ const links = [
       border-radius: 999px;
       padding: 0.34em 0.85em;
       cursor: pointer;
+      min-height: 44px;
       display: inline-flex;
       align-items: center;
       gap: 0.45em;
@@ -883,7 +863,7 @@ const links = [
     /* ---- focus grid ---- */
     .focus-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1px;
       background: var(--line);
       border: 1px solid var(--line);
@@ -943,7 +923,7 @@ const links = [
     /* ---- work grid ---- */
     .work-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 1rem;
     }
     .work-card {
@@ -958,7 +938,6 @@ const links = [
       position: relative;
       overflow: hidden;
       transform-style: preserve-3d;
-      will-change: transform;
     }
     .work-card:hover {
       border-color: var(--accent-line);
@@ -992,13 +971,14 @@ const links = [
       opacity: 0;
       transition: transform 0.28s, opacity 0.28s, color 0.28s;
     }
-    .work-card:hover .work-open { opacity: 1; transform: translateX(0); color: var(--accent); }
+    .work-card:focus-visible .work-open, .work-card:hover .work-open { opacity: 1; transform: translateX(0); color: var(--accent); }
     .work-name {
       font-family: var(--font-mono);
       font-size: var(--step-1);
       font-weight: 500;
       letter-spacing: -0.01em;
       margin: 1rem 0 0.6rem;
+      overflow-wrap: anywhere;
     }
     .work-desc { color: var(--text-dim); font-size: var(--step--1); line-height: 1.55; flex: 1; }
     .work-meta {
@@ -1014,7 +994,7 @@ const links = [
       opacity: 0.7;
     }
     .work-star { color: var(--accent); }
-    @media (max-width: 900px) { .work-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px) { .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 560px) { .work-grid { grid-template-columns: 1fr; } }
 
     .all-repos {
@@ -1109,7 +1089,7 @@ const links = [
     .feature-text { color: var(--text-dim); font-size: var(--step--1); line-height: 1.5; }
     .feature-event { display: block; color: var(--text-faint); font-family: var(--font-mono); margin-top: 0.3em; }
     .feature-open { flex: 0 0 auto; margin-left: auto; color: var(--text-faint); font-family: var(--font-mono); }
-    .write-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .write-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
     .write-card {
       display: flex;
       flex-direction: column;
@@ -1152,7 +1132,7 @@ const links = [
     }
     .link-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       border-top: 1px solid var(--line);
     }
     .link-row {
@@ -1167,6 +1147,7 @@ const links = [
     .link-row:nth-child(even) { padding-left: 1.4rem; }
     .link-row:hover { padding-left: 1.2rem; }
     .link-row:nth-child(even):hover { padding-left: 2.6rem; }
+    .link-row { gap: 1rem; flex-wrap: wrap; }
     .link-label { font-family: var(--font-display); font-size: var(--step-1); }
     .link-handle {
       font-family: var(--font-mono);
@@ -1206,13 +1187,13 @@ const links = [
     }
     @media (prefers-reduced-motion: reduce) {
       .brand:hover .brand-dot, .foot-brand:hover .brand-dot { animation: none; }
-      .stage-inner { opacity: calc(1 - var(--boot) * 1.1); }
+      .stage-inner { transform: none; }
     }
 
     /* count-up stats */
     .stats {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1.6rem 2rem;
       margin-top: 2.6rem;
       max-width: 380px;
