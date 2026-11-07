@@ -358,9 +358,12 @@ const navLinks = [
     const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('.nav-links a[href^="#"]')];
     const sectionObserver = new IntersectionObserver((entries) => entries.forEach((e) => {
       if (!e.isIntersecting) return;
-      navLinks.forEach((a) => a.setAttribute('aria-current', String(a.getAttribute('href') === `#${e.target.id}`)));
+      navLinks.forEach((a) => a.setAttribute('aria-current', String(a.hash === `#${e.target.id}`)));
     }), { rootMargin: '-45% 0px -50% 0px' });
-    navLinks.forEach((a) => sectionObserver.observe(document.querySelector(a.getAttribute('href')!)!));
+    navLinks.forEach((a) => {
+      const section = document.getElementById(a.hash.slice(1));
+      if (section) sectionObserver.observe(section);
+    });
 
     // Tagline: words go from muted ink to full ink one at a time (rAF throttled scroll).
     const tagline = document.getElementById('tagline')!;
@@ -397,9 +400,9 @@ const navLinks = [
         shown.at(-1)?.classList.add('hot');
       };
       const step = () => {
-        if (!visible || document.hidden || busy) return;
+        const first = track.firstElementChild;
+        if (!visible || document.hidden || busy || !(first instanceof HTMLElement)) return;
         busy = true;
-        const first = track.firstElementChild as HTMLElement;
         const shift = first.getBoundingClientRect().width + 8;
         track.style.transition = 'transform 500ms cubic-bezier(0.22, 1, 0.36, 1)';
         track.style.transform = `translateX(${-shift}px)`;
