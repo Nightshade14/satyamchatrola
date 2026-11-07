@@ -1,19 +1,17 @@
 # Satyam Chatrola — portfolio
 
-Personal portfolio for **Satyam Chatrola**, AI Systems Engineer specializing in LLM inference & serving.
+Personal portfolio for **Satyam Chatrola**, AI Systems Engineer specializing in LLM inference, reliability, and evals.
 
 Live: **https://nightshade14.github.io/satyamchatrola/**
 
 ## Stack and rendering
 
-- Astro static HTML on GitHub Pages, with a single scrolling page and the “compute night” dark theme.
-- Self-hosted Latin variable fonts: Bricolage Grotesque, Geist, and Geist Mono.
-- The name, introduction, statistics, and links are available without JavaScript. Scripts progressively add scroll reveals, response streaming, and pointer interactions.
-- The decorative Three.js GPU scene loads while the hero is visible and the document is active. Reduced motion, data-saving mode, and a manual pause prevent initialization. These conditions are checked again after asynchronous imports.
-- Scene rendering is capped at approximately 30 fps, stops outside the hero or in a hidden tab, and resumes on return. Touch/narrow viewports use one render pass and DPR at most 1; desktop DPR is capped at 1.5, with a two-million-pixel drawing-buffer budget.
-- A **Pause animation** button stops the scene and CSS animations. Reduced motion uses a static CSS glow without downloading Three.js, the model, or the HDR environment. A missing model falls back to particles; unavailable WebGL leaves readable static content.
-- Draco decoding uses one worker and files copied from the installed Three.js package to the same origin. No runtime decoder CDN is required. Scene resources are disposed on ordinary page exit; browser back/forward-cache suspension preserves them for resumption.
-- Canonical/social URLs and the sitemap include the GitHub Pages project path. Social cards use a compressed JPEG rather than the original headshot PNG.
+- Astro static HTML on GitHub Pages: one scrolling page in a light "blue engraving" style, plus a branded `404.html`.
+- Self hosted Latin variable fonts: Geist and Geist Mono. Icons are Phosphor SVGs inlined at build time by `src/components/Icon.astro`. Nothing loads from a CDN.
+- All illustrations are inline SVG engravings in `src/components/art/`. Their hatch patterns and the star symbol are defined once in `Defs.astro`.
+- All text, statistics, and links are in the static HTML. Scripts only add scroll reveals, the mobile menu, the current section in the nav, the tagline word reveal, and the hero ticker tape.
+- Reduced motion turns off reveals, the tagline animation, and the ticker tape. The ticker tape also pauses off screen and in hidden tabs.
+- Canonical and social URLs and the sitemap include the GitHub Pages project path.
 
 ## Develop and verify
 
@@ -27,22 +25,22 @@ npm run preview  # inspect dist/ in a browser
 npm audit --audit-level=high
 ```
 
-`npm run build` generates `dist/`. The `predev` and `prebuild` hooks run `scripts/prepare-assets.mjs` to copy the Draco decoder into ignored `public/draco/`; do not edit or commit that generated directory. `npm test` alone expects an existing production build.
+`npm run build` generates `dist/`. `npm test` alone expects an existing production build.
 
-Tests cover the generated HTML, local asset/anchor paths, canonical URLs, rendering frequency, stop/resume behavior, and eligibility changes during asynchronous scene loading. The lifecycle tests replace browser and Three.js boundaries; they complement manual browser checks rather than replace a real GPU/browser test.
+Tests check the generated HTML: the headline and statistics without JavaScript, canonical URLs, local links and anchors, no placeholder text or empty links, no third party scripts or stylesheets, and the 404 page.
 
-Before publishing UI changes, check narrow phones (320px and 390px), tablet and desktop widths, keyboard focus, section links, resampling, and pause/resume. Confirm that the page remains readable if scripts or WebGL are unavailable. See [the production-readiness audit](docs/production-readiness.md) for findings and verification limits.
+Before publishing UI changes, check narrow phones (320px and 390px), tablet and desktop widths, keyboard focus, the mobile menu, and section links. Confirm that the page stays readable with scripts off and with reduced motion. [The production readiness audit](docs/production-readiness.md) describes the earlier 3D design and is kept for history.
 
 ## Editing content
 
-Copy and data live in `src/pages/index.astro`: the `RESPONSES`, `stats`, `focus`, `highlights`, `creds`, `projects`, `articles`, and `links` arrays. The latency claim is **71%**, without the previously inconsistent before/after timings. Hero inference numbers are explicitly labeled as a demo.
+Copy and data live at the top of `src/pages/index.astro`: the `proof`, `stats`, `pillars`, `skills`, `highlights`, `featured`, `projects`, `articles`, and `socials` arrays. The latency claim is **71%**.
 
-Design tokens and shared accessibility styles are in `src/styles/global.css`; font declarations are in `src/styles/fonts.css`. The 3D scene is in `src/components/GpuScene.astro`, with scheduling in `src/scripts/animation-loop.js`. Its model and HDR environment are under `public/models/` and `public/hdri/`. PDFs live under `public/pdf/`.
+Design tokens (colors, spacing, easing) and named text styles are in `src/styles/global.css`; font declarations are in `src/styles/fonts.css`. PDFs live under `public/pdf/`. `public/images/satyam-avatar.jpg` is a 112px crop of the headshot for the hero.
 
-`public/images/satyam_headshot.png` is the original image. To regenerate the optimized social image after changing it:
+`public/images/satyam_headshot.jpg` is the original image. To regenerate the optimized social image after changing it:
 
 ```bash
-node --input-type=module -e 'import sharp from "sharp"; await sharp("public/images/satyam_headshot.png").rotate().resize({width:1200,height:1200,fit:"inside",withoutEnlargement:true}).jpeg({quality:82,mozjpeg:true}).toFile("public/images/satyam-social.jpg");'
+node --input-type=module -e 'import sharp from "sharp"; await sharp("public/images/satyam_headshot.jpg").rotate().resize({width:1200,height:1200,fit:"inside",withoutEnlargement:true}).jpeg({quality:82,mozjpeg:true}).toFile("public/images/satyam-social.jpg");'
 ```
 
 ## Deployment
