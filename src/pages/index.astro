@@ -30,12 +30,6 @@ const pillarIcon: Record<Pillar, IconName> = {
 const tapeSentence = ['Serve', ' every', ' token', ' fast', ',', ' keep', ' the', ' service', ' up', ',', ' and', ' measure', ' that', ' each', ' answer', ' holds', ' up', '.', '⏎'];
 const tape = [...tapeSentence, ...tapeSentence, ...tapeSentence];
 
-const proof: { icon: IconName; text: string }[] = [
-  { icon: 'lightning', text: '71% lower p99 latency in production' },
-  { icon: 'scales', text: 'Peer reviewed benchmarking paper' },
-  { icon: 'quotes', text: "Quoted in Qualcomm's developer blog" },
-];
-
 const stats: { pillar: Pillar; value: string; label: string }[] = [
   { pillar: 'Inference', value: '71%', label: 'p99 latency cut in production' },
   { pillar: 'Reliability', value: '355 MB', label: 'Deploy image, down from 14 GB' },
@@ -159,9 +153,6 @@ const navLinks = [
           <div class="ctas" data-reveal style="--d:240ms">
             <a class="btn btn-primary button-md" href={LINKEDIN} target="_blank" rel="noopener"><Icon name="linkedin-logo" />Message me on LinkedIn</a>
             <a class="text-link caption-1" href="#work">See selected work <Icon name="arrow-down" /></a>
-          </div>
-          <div class="proof caption-1 dim" data-reveal style="--d:320ms">
-            {proof.map((p) => <span><Icon name={p.icon} />{p.text}</span>)}
           </div>
         </div>
 

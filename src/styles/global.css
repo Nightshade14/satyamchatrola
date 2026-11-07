@@ -136,9 +136,6 @@ h1, h2, h3 { text-wrap: balance; }
 }
 .hero .sub { margin-top: var(--s-300); max-width: 540px; }
 .ctas { display: flex; align-items: center; gap: var(--s-300); margin-top: var(--s-500); flex-wrap: wrap; }
-.proof { display: flex; flex-wrap: wrap; gap: var(--s-75); margin-top: var(--s-600); max-width: 560px; }
-.proof span { display: inline-flex; align-items: center; gap: var(--s-75); padding: var(--s-50) var(--s-100); border-radius: 9999px; border: 1px solid var(--line); background: rgba(248, 244, 236, 0.86); }
-.proof .icon { color: var(--blue); font-size: 16px; }
 .plate { position: absolute; right: 40px; bottom: 112px; width: min(40%, 480px); color: var(--blue); z-index: 0; }
 .plate svg { display: block; width: 100%; height: auto; overflow: visible; }
 .plate text { font-family: var(--mono); font-size: 13px; fill: currentColor; letter-spacing: 0.02em; }
