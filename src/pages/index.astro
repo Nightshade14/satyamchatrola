@@ -7,7 +7,7 @@ import InferenceDiagram from '../components/art/InferenceDiagram.astro';
 import ReliabilityDiagram from '../components/art/ReliabilityDiagram.astro';
 import EvalsDiagram from '../components/art/EvalsDiagram.astro';
 import CareCompanionDiagram from '../components/art/CareCompanionDiagram.astro';
-import CtaClouds from '../components/art/CtaClouds.astro';
+import CtaGrid from '../components/art/CtaGrid.astro';
 import FooterTrace from '../components/art/FooterTrace.astro';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -294,7 +294,7 @@ const navLinks = [
     <section class="block" style="padding-top:0">
       <div class="shell">
         <div class="final" data-reveal>
-          <CtaClouds />
+          <CtaGrid />
           <h2 class="heading-3">Hiring for inference, reliability, or evals work?</h2>
           <p class="body-3">Tell me about the team and the problem you want to solve.</p>
           <a class="btn button-md" href={LINKEDIN} target="_blank" rel="noopener"><Icon name="linkedin-logo" />Message me on LinkedIn</a>
