@@ -15,7 +15,7 @@ Live: **https://nightshade14.github.io/satyamchatrola/**
 
 ## Develop and verify
 
-Use **Node.js 24** and the committed lockfile:
+Use **Node.js 24.22.1 or newer within 24.x** (the first 24.x release with the October 2026 security fixes) and the committed lockfile. `.npmrc` sets `engine-strict=true`, so `npm ci` refuses an older Node.js, and CI installs the latest 24.x on every run:
 
 ```bash
 npm ci
