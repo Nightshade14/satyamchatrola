@@ -188,7 +188,6 @@ a.card:active { transform: scale(0.98); }
 
 .chips { display: flex; flex-wrap: wrap; gap: var(--s-75); margin-top: var(--s-300); }
 .chip { padding: var(--s-50) var(--s-100); border-radius: 9999px; border: 1px solid var(--line); background: var(--paper-hi); color: var(--ink-dim); }
-.chip.ev { font-family: var(--mono); color: var(--blue); border-color: var(--line-strong); }
 .ptag { display: inline-flex; align-items: center; gap: var(--s-50); padding: var(--s-25) var(--s-75); border-radius: 9999px; border: 1px solid var(--line-strong); background: var(--paper); color: var(--blue); font-family: var(--mono); white-space: nowrap; }
 .ptag .icon { font-size: 12px; }
 

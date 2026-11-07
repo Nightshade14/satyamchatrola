@@ -42,19 +42,16 @@ const pillars = [
     name: 'Inference',
     Diagram: InferenceDiagram,
     body: 'Batching, KV cache reuse, quantization, and semantic caching, so the first token arrives sooner and every token after it costs less.',
-    chips: ['71% p99 cut', 'vllm-demo', 'semantic cache'],
   },
   {
     name: 'Reliability',
     Diagram: ReliabilityDiagram,
     body: 'Async load shedding, backpressure, and circuit breakers under heavy traffic, incident root cause work, and drift monitoring that catches a decaying model early.',
-    chips: ['Load shedding', 'Circuit breakers', 'Root cause fix', 'Drift alerts'],
   },
   {
     name: 'Evals',
     Diagram: EvalsDiagram,
     body: 'I build the evals that decide which model ships: candidate models are tested against product criteria and performance, side by side, before one is chosen.',
-    chips: ['Model selection evals', 'Benchmark paper, +5.7%', 'Model decay alerts'],
   },
 ];
 
@@ -184,12 +181,11 @@ const navLinks = [
           <h2 class="heading-3">Fast to answer,<br />hard to break, measured to be right</h2>
         </div>
         <div class="pillars">
-          {pillars.map(({ name, Diagram, body, chips }, i) => (
+          {pillars.map(({ name, Diagram, body }, i) => (
             <article class="card pillar" data-reveal style={`--d:${i * 60}ms`}>
               <div class="vig" aria-hidden="true"><Diagram /></div>
               <h3 class="heading-5">{name}</h3>
               <p class="body-6 dim">{body}</p>
-              <div class="chips caption-4">{chips.map((c) => <span class="chip ev">{c}</span>)}</div>
             </article>
           ))}
         </div>
