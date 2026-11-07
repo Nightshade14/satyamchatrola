@@ -75,17 +75,19 @@ const highlights: { metric: string; pillar: Pillar; text: string }[] = [
   { metric: '$300K+', pillar: 'Inference', text: 'Built hybrid retrieval (two tower network, FAISS, and BM25) over 5M+ SKUs. Conversion rose 7.2% and click through rose 34%, driving $300K+ ARR.' },
 ];
 
-const featured = {
+type Project = { name: string; url: string; tag: string; desc: string; lang: string; langIcon: IconName; stars?: number; pillars: Pillar[] };
+
+const featured: Project = {
   name: 'care-companion',
   url: 'https://github.com/care-ai-mlops/care-companion',
   tag: 'serving · Triton',
   desc: 'A production grade CNN inference service with P90 at 250 ms, on FastAPI and NVIDIA Triton. It runs GPU (TensorRT) and CPU (OpenVINO) backends, with Prometheus and Grafana to catch data drift and model decay in real time.',
   lang: 'Docker',
-  langIcon: 'package' as IconName,
-  pillars: ['Inference', 'Reliability'] as Pillar[],
+  langIcon: 'package',
+  pillars: ['Inference', 'Reliability'],
 };
 
-const projects: { name: string; url: string; tag: string; desc: string; lang: string; langIcon: IconName; stars?: number; pillars: Pillar[] }[] = [
+const projects: Project[] = [
   { name: 'research-mate', url: 'https://github.com/Nightshade14/research-mate', tag: 'RAG · latency', desc: 'A contextual RAG research assistant on AWS. Binary quantized embeddings and an in memory vector store keep retrieval fast.', lang: 'Python', langIcon: 'file-py', stars: 2, pillars: ['Inference'] },
   { name: 'vllm-demo', url: 'https://github.com/Nightshade14/vllm-demo', tag: 'serving', desc: 'Reproducible LLM serving with vLLM, packaged in Docker images for portable, high throughput inference.', lang: 'Docker', langIcon: 'package', pillars: ['Inference'] },
   { name: 'semantic_cache_and_RAG', url: 'https://github.com/Nightshade14/semantic_cache_and_RAG', tag: 'caching', desc: 'A semantic cache, vector store, and RAG on FAISS. Repeat questions with the same meaning come from cache, which cuts latency and cost.', lang: 'Notebook', langIcon: 'notebook', pillars: ['Inference'] },
