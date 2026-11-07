@@ -20,10 +20,13 @@ Use **Node.js 24.22.1 or newer within 24.x** (the first 24.x release with the Oc
 ```bash
 npm ci
 npm run dev      # http://localhost:4321/satyamchatrola/
-npm run check    # build static output, then run regression tests
-npm run preview  # inspect dist/ in a browser
+npm run typecheck  # astro check: type errors in .astro and .ts files
+npm run check      # build static output, then run regression tests
+npm run preview    # inspect dist/ in a browser
 npm audit --audit-level=high
 ```
+
+`.githooks/pre-commit` runs the type check, the build and tests, and the audit before every commit, and cancels the commit if one fails. Enable it once per clone with `git config core.hooksPath .githooks`. The audit needs internet; skip the hook once with `git commit --no-verify`. TypeScript stays on 6 because `@astrojs/check` does not support TypeScript 7 yet.
 
 `npm run build` generates `dist/`. `npm test` alone expects an existing production build.
 
