@@ -44,7 +44,7 @@ Design tokens (colors, spacing, easing) and named text styles are in `src/styles
 
 ## Deployment
 
-Pull requests run `.github/workflows/check.yml` with read-only repository permissions. Pushing to `main` runs `.github/workflows/deploy.yml`, which installs from the lockfile, builds, tests, audits dependencies, and publishes the static artifact. High/critical dependency advisories block publication. Build and deployment jobs each have a ten-minute timeout.
+CI is kept minimal: pull requests run no workflow. Pushing to `main` runs `.github/workflows/deploy.yml`, which installs from the lockfile, builds, and publishes the static artifact. The type check, tests, and dependency audit run only in the local pre-commit hook, so a commit made with `--no-verify` or from a clone without the hook reaches deploy unchecked. Build and deployment jobs each have a ten-minute timeout.
 
 In **Settings → Pages**, set **Source** to **GitHub Actions**. The current project site uses `site: 'https://nightshade14.github.io'` and `base: '/satyamchatrola'` in `astro.config.mjs`.
 
