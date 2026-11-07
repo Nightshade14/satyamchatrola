@@ -17,13 +17,11 @@ const PAPER_URL =
   'https://www.researchgate.net/publication/388835538_Benchmarking_Fine-Tuned_Transformers_LLMs_and_LSTM_Networks_for_Automated_Essay_Scoring';
 const LINKEDIN = 'https://www.linkedin.com/in/satyamchatrola';
 
-type Pillar = 'Inference' | 'Reliability' | 'Evals' | 'Retrieval' | 'Foundations';
+type Pillar = 'Inference' | 'Reliability' | 'Retrieval';
 const pillarIcon: Record<Pillar, IconName> = {
   Inference: 'cpu',
   Reliability: 'shield-check',
-  Evals: 'scales',
   Retrieval: 'magnifying-glass',
-  Foundations: 'book-open',
 };
 
 // The ticker tape under the hero repeats this sentence, one token per box.
@@ -33,7 +31,7 @@ const tape = [...tapeSentence, ...tapeSentence, ...tapeSentence];
 const stats: { pillar: Pillar; value: string; label: string }[] = [
   { pillar: 'Inference', value: '71%', label: 'p99 latency cut in production' },
   { pillar: 'Reliability', value: '355 MB', label: 'Deploy image, down from 14 GB' },
-  { pillar: 'Inference', value: '5M+', label: 'SKUs served by hybrid retrieval' },
+  { pillar: 'Retrieval', value: '5M+', label: 'SKUs served by hybrid retrieval' },
   { pillar: 'Retrieval', value: '+34%', label: 'Click through rate lift' },
 ];
 
@@ -57,16 +55,16 @@ const pillars = [
 
 const skills = ['Python asyncio', 'vLLM', 'Docker', 'ArgoCD', 'FAISS'];
 
-const highlights: { metric: string; pillar: Pillar; text: string }[] = [
-  { metric: 'Current', pillar: 'Evals', text: 'Building evals for model decisions: candidate models are tested against product criteria and performance before one is chosen.' },
-  { metric: '71%', pillar: 'Inference', text: 'Cut p99 latency by moving blocking calls off the asyncio event loop, while keeping session order intact.' },
-  { metric: 'Async', pillar: 'Reliability', text: 'Kept throughput steady under heavy concurrent load with an async logging queue: watermark based load shedding and backpressure to reduce GIL contention.' },
-  { metric: '<7 min', pillar: 'Reliability', text: 'Rebuilt multi stage Docker builds. The image went from 14 GB to 355 MB, and PR to production went from 30 minutes to under 7.' },
-  { metric: 'Root cause', pillar: 'Reliability', text: 'Found a silent misrouting between builds that caused a production traffic skew during a Jenkins to ArgoCD migration. Engineering leadership recognized the fix.' },
-  { metric: '$300K+', pillar: 'Inference', text: 'Built hybrid retrieval (two tower network, FAISS, and BM25) over 5M+ SKUs. Conversion rose 7.2% and click through rose 34%, driving $300K+ ARR.' },
+const highlights: { metric: string; text: string }[] = [
+  { metric: 'Current', text: 'Building evals for model decisions: candidate models are tested against product criteria and performance before one is chosen.' },
+  { metric: '71%', text: 'Cut p99 latency by moving blocking calls off the asyncio event loop, while keeping session order intact.' },
+  { metric: 'Async', text: 'Kept throughput steady under heavy concurrent load with an async logging queue: watermark based load shedding and backpressure to reduce GIL contention.' },
+  { metric: '<7 min', text: 'Rebuilt multi stage Docker builds. The image went from 14 GB to 355 MB, and PR to production went from 30 minutes to under 7.' },
+  { metric: 'Root cause', text: 'Found a silent misrouting between builds that caused a production traffic skew during a Jenkins to ArgoCD migration. Engineering leadership recognized the fix.' },
+  { metric: '$300K+', text: 'Built hybrid retrieval (two tower network, FAISS, and BM25) over 5M+ SKUs. Conversion rose 7.2% and click through rose 34%, driving $300K+ ARR.' },
 ];
 
-type Project = { name: string; url: string; tag: string; desc: string; lang: string; langIcon: IconName; stars?: number; pillars: Pillar[] };
+type Project = { name: string; url: string; tag: string; desc: string; lang: string; langIcon: IconName; stars?: number };
 
 const featured: Project = {
   name: 'care-companion',
@@ -75,16 +73,15 @@ const featured: Project = {
   desc: 'A production grade CNN inference service with P90 at 250 ms, on FastAPI and NVIDIA Triton. It runs GPU (TensorRT) and CPU (OpenVINO) backends, with Prometheus and Grafana to catch data drift and model decay in real time.',
   lang: 'Docker',
   langIcon: 'package',
-  pillars: ['Inference', 'Reliability'],
 };
 
 const projects: Project[] = [
-  { name: 'research-mate', url: 'https://github.com/Nightshade14/research-mate', tag: 'RAG · latency', desc: 'A contextual RAG research assistant on AWS. Binary quantized embeddings and an in memory vector store keep retrieval fast.', lang: 'Python', langIcon: 'file-py', stars: 2, pillars: ['Inference'] },
-  { name: 'vllm-demo', url: 'https://github.com/Nightshade14/vllm-demo', tag: 'serving', desc: 'Reproducible LLM serving with vLLM, packaged in Docker images for portable, high throughput inference.', lang: 'Docker', langIcon: 'package', pillars: ['Inference'] },
-  { name: 'semantic_cache_and_RAG', url: 'https://github.com/Nightshade14/semantic_cache_and_RAG', tag: 'caching', desc: 'A semantic cache, vector store, and RAG on FAISS. Repeat questions with the same meaning come from cache, which cuts latency and cost.', lang: 'Notebook', langIcon: 'notebook', pillars: ['Inference'] },
-  { name: 'truss-demo', url: 'https://github.com/Nightshade14/truss-demo', tag: 'deployment', desc: 'Model packaging and deployment with Truss: a trained model becomes a served endpoint with very little glue code.', lang: 'Python', langIcon: 'file-py', pillars: ['Reliability'] },
-  { name: 'my_LLM', url: 'https://github.com/Nightshade14/my_LLM', tag: 'from scratch', desc: 'A language model built from scratch in PyTorch, grown step by step toward current production architecture.', lang: 'PyTorch', langIcon: 'fire', pillars: ['Foundations'] },
-  { name: 'my_micrograd', url: 'https://github.com/Nightshade14/my_micrograd', tag: 'foundations', desc: "A rebuild of Karpathy's micrograd, a tiny autograd engine, to learn backprop from first principles.", lang: 'Python', langIcon: 'file-py', pillars: ['Foundations'] },
+  { name: 'research-mate', url: 'https://github.com/Nightshade14/research-mate', tag: 'RAG · latency', desc: 'A contextual RAG research assistant on AWS. Binary quantized embeddings and an in memory vector store keep retrieval fast.', lang: 'Python', langIcon: 'file-py', stars: 2 },
+  { name: 'vllm-demo', url: 'https://github.com/Nightshade14/vllm-demo', tag: 'serving', desc: 'Reproducible LLM serving with vLLM, packaged in Docker images for portable, high throughput inference.', lang: 'Docker', langIcon: 'package' },
+  { name: 'semantic_cache_and_RAG', url: 'https://github.com/Nightshade14/semantic_cache_and_RAG', tag: 'caching', desc: 'A semantic cache, vector store, and RAG on FAISS. Repeat questions with the same meaning come from cache, which cuts latency and cost.', lang: 'Notebook', langIcon: 'notebook' },
+  { name: 'truss-demo', url: 'https://github.com/Nightshade14/truss-demo', tag: 'deployment', desc: 'Model packaging and deployment with Truss: a trained model becomes a served endpoint with very little glue code.', lang: 'Python', langIcon: 'file-py' },
+  { name: 'my_LLM', url: 'https://github.com/Nightshade14/my_LLM', tag: 'from scratch', desc: 'A language model built from scratch in PyTorch, grown step by step toward current production architecture.', lang: 'PyTorch', langIcon: 'fire' },
+  { name: 'my_micrograd', url: 'https://github.com/Nightshade14/my_micrograd', tag: 'foundations', desc: "A rebuild of Karpathy's micrograd, a tiny autograd engine, to learn backprop from first principles.", lang: 'Python', langIcon: 'file-py' },
 ];
 
 const articles = [
@@ -215,7 +212,6 @@ const navLinks = [
             <div class="card row" data-reveal>
               <span class="metric">{h.metric}</span>
               <div>
-                <span class="ptag caption-4"><Icon name={pillarIcon[h.pillar]} />{h.pillar}</span>
                 <p class="body-3 dim">{h.text}</p>
               </div>
             </div>
@@ -240,7 +236,6 @@ const navLinks = [
               <p class="body-6 dim">{featured.desc}</p>
               <div class="meta caption-4 faint">
                 <span><Icon name={featured.langIcon} />{featured.lang}</span>
-                <span class="ptags">{featured.pillars.map((p) => <span class="ptag caption-4"><Icon name={pillarIcon[p]} />{p}</span>)}</span>
               </div>
             </div>
             <div class="vignette" aria-hidden="true"><CareCompanionDiagram /></div>
@@ -253,7 +248,6 @@ const navLinks = [
               <div class="meta caption-4 faint">
                 <span><Icon name={p.langIcon} />{p.lang}</span>
                 {p.stars && <span><Icon name="star" /><span class="sr-only">GitHub stars: </span>{p.stars}</span>}
-                <span class="ptags">{p.pillars.map((t) => <span class="ptag caption-4"><Icon name={pillarIcon[t]} />{t}</span>)}</span>
               </div>
             </a>
           ))}
