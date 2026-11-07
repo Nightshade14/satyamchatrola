@@ -70,6 +70,22 @@ const ogImage = new URL(`${base}/images/satyam-social-card.jpg`, site).href;
           el.classList.add('reveal-pending');
           io.observe(el);
         });
+
+        // Drawing motion: loops run only while a drawing is on screen; one-shot motion starts the first time it shows.
+        // Drawings stay complete and still until .motion is added, so they read fine without scripts or motion.
+        const motion = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              entry.target.classList.toggle('playing', entry.isIntersecting);
+              if (entry.isIntersecting) entry.target.classList.add('played');
+            }
+          },
+          { threshold: 0.3 }
+        );
+        document.querySelectorAll('[data-motion]').forEach((el) => {
+          el.classList.add('motion');
+          motion.observe(el);
+        });
       }
     </script>
   </body>

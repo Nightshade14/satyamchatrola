@@ -9,8 +9,9 @@ Live: **https://nightshade14.github.io/satyamchatrola/**
 - Astro static HTML on GitHub Pages: one scrolling page in a light "blue engraving" style, plus a branded `404.html`.
 - Self hosted Latin variable fonts: Geist and Geist Mono. Icons are Phosphor SVGs inlined at build time by `src/components/Icon.astro`. Nothing loads from a CDN.
 - All illustrations are inline SVG engravings in `src/components/art/`. Their hatch patterns and the star symbol are defined once in `Defs.astro`.
-- All text, statistics, and links are in the static HTML. Scripts only add scroll reveals, the mobile menu, the current section in the nav, the tagline word reveal, and the hero ticker tape.
-- Reduced motion turns off reveals, the tagline animation, and the ticker tape. The ticker tape also pauses off screen and in hidden tabs.
+- All text, statistics, and links are in the static HTML. Scripts only add scroll reveals, the mobile menu, the current section in the nav, the tagline word reveal, the hero ticker tape, and motion in the drawings.
+- Drawings with motion carry `data-motion`. Their looping motion runs only while on screen; one-shot motion plays the first time a drawing shows. Each drawing is complete and still until the script runs.
+- Reduced motion turns off reveals, the tagline animation, the ticker tape, and the drawing motion. The ticker tape also pauses off screen and in hidden tabs.
 - Canonical and social URLs and the sitemap include the GitHub Pages project path.
 
 ## Develop and verify

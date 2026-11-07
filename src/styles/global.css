@@ -228,10 +228,11 @@ a.card:active { transform: scale(0.98); }
 
 /* projects */
 /* The featured project fills the first row; the six other cards fill two rows of three. */
+/* Its wide drawing takes the larger column, so the labels stay readable at a glance. */
 .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-200); }
-.projects .feature { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 200px; gap: var(--s-300); }
+.projects .feature { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); align-items: center; gap: var(--s-300); }
 .feature .proj-body { display: flex; flex-direction: column; }
-.feature .vignette { border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--blue); overflow: hidden; }
+.feature .vignette { aspect-ratio: 400 / 112; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--blue); overflow: hidden; }
 .feature .vignette svg { width: 100%; height: 100%; display: block; }
 .feature .vignette text { font-family: var(--mono); }
 .proj { display: flex; flex-direction: column; min-height: 240px; }
@@ -260,7 +261,7 @@ a.proj:hover .go { transform: translate(2px, -2px); color: var(--blue); }
 
 /* final call to action: the one inverted panel */
 .final { position: relative; overflow: hidden; text-align: center; padding: var(--s-900) var(--s-300); border-radius: 24px; background: var(--blue); color: var(--paper); }
-.final svg.clouds { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--paper); opacity: 0.5; }
+.final svg.grid { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--paper); opacity: 0.5; }
 .final > *:not(svg) { position: relative; }
 .final h2, .final p { max-width: 680px; margin-inline: auto; }
 .final p { margin-top: var(--s-200); color: rgba(243, 238, 227, 0.82); }
@@ -270,16 +271,64 @@ a.proj:hover .go { transform: translate(2px, -2px); color: var(--blue); }
 
 /* footer */
 footer { margin-top: var(--s-900); }
-.foot-art { display: block; width: 100%; height: 200px; color: var(--blue); }
+.foot-trace { position: relative; color: var(--blue); }
+.foot-art { display: block; width: 100%; height: 200px; }
+/* Labels sit above the target line and between the baseline and the dot strip. */
+.foot-label { position: absolute; font: 11px/1 var(--mono); letter-spacing: 0.02em; }
+.foot-label.target { right: 10px; top: calc(50% - 20px); }
+.foot-label.before { left: 24px; bottom: 26px; }
+.foot-label.after { right: 24px; bottom: 26px; }
 .foot { display: flex; justify-content: space-between; align-items: center; gap: var(--s-300); flex-wrap: wrap; padding-block: var(--s-400); }
 .socials { display: flex; gap: var(--s-75); }
 .icon-btn { width: 40px; height: 40px; border-radius: 9999px; display: grid; place-items: center; border: 1px solid var(--line-strong); color: var(--blue); background: var(--paper-hi); font-size: 20px; transition: background-color 300ms var(--ease); }
 .icon-btn:hover { background: var(--paper-lo); }
-@media (max-width: 640px) { .foot-art { height: 120px; } }
+@media (max-width: 640px) { .foot-art { height: 120px; } .foot-label.target { top: calc(50% - 18px); } .foot-label.before, .foot-label.after { bottom: 14px; } .foot-label.before { left: 16px; } .foot-label.after { right: 16px; } }
 
 /* ---------- scroll reveal (only after the observer is installed) ---------- */
 [data-reveal].reveal-pending { opacity: 0; transform: translateY(32px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); transition-delay: var(--d, 0ms); }
 [data-reveal].reveal-pending.in { opacity: 1; transform: none; }
+
+/* ---------- drawing motion (only after the observer in Base.astro adds .motion) ---------- */
+/* Only transform and opacity animate. Loops pause while a drawing is off screen; .played starts one-shot motion once. */
+.motion:not(.playing) * { animation-play-state: paused !important; } /* beats each rule's animation shorthand */
+
+/* Hero GPU: the fans turn (convex blade edge first); tape falls one box per ticker step (900 ms). */
+.motion .fan { transform-box: fill-box; transform-origin: center; animation: spin 9s linear infinite; }
+.motion .fan.slow { animation-duration: 11s; }
+.motion .chute-tape { animation: fall 900ms var(--ease) infinite; }
+@keyframes spin { to { transform: rotate(-360deg); } }
+@keyframes fall { to { transform: translateY(50px); } }
+
+/* Inference: attention rows fill top to bottom, then the new k, v slot and the next token light up. 6 s loop. */
+.motion .cell { animation: fill 6s var(--ease) infinite backwards; animation-delay: calc(var(--i) * 350ms); }
+.motion .kv-new { animation: fill 6s var(--ease) 2100ms infinite backwards; }
+.motion .next-token { animation: blip 6s var(--ease) 2500ms infinite backwards; }
+@keyframes fill { 0% { opacity: 0; } 6%, 70% { opacity: 1; } 82%, 100% { opacity: 0; } }
+@keyframes blip { 0% { opacity: 0.25; } 6%, 70% { opacity: 1; } 82%, 100% { opacity: 0.25; } }
+
+/* Reliability: requests flow in, queue cells past the high-water line flash as shed, and the breaker closes then opens. */
+.req { opacity: 0; } /* the request dots show only while moving */
+.motion .req { animation: flow 1.4s linear infinite; animation-delay: calc(var(--i) * -470ms); }
+.motion .shed { animation: shed 1.4s var(--ease) infinite; animation-delay: calc(var(--i) * 140ms); }
+.motion .lever { transform-origin: 230px 105px; animation: lever 5s var(--ease) infinite; }
+@keyframes flow { 0% { transform: translateX(0); opacity: 0; } 15%, 85% { opacity: 1; } 100% { transform: translateX(34px); opacity: 0; } }
+@keyframes shed { 40% { opacity: 0.35; } }
+@keyframes lever { 0%, 45% { transform: rotate(43deg); } 55%, 100% { transform: rotate(0deg); } }
+
+/* Evals: the selection frame compares model a, then c, settles on b, and "ships" lights up. 7 s loop. */
+.motion .pick { animation: pick 7s var(--ease) infinite; }
+.motion .ship { animation: ship 7s var(--ease) infinite backwards; }
+@keyframes pick { 0%, 14% { transform: translateX(-72px); } 26%, 40% { transform: translateX(72px); } 52%, 100% { transform: none; } }
+@keyframes ship { 0%, 54% { opacity: 0; } 60%, 90% { opacity: 1; } 97%, 100% { opacity: 0; } }
+
+/* Clip rects with .wipe draw a line left to right once (care-companion drift, footer trace). */
+.motion .wipe { transform-box: fill-box; transform-origin: left center; transform: scaleX(0); }
+.motion.played .wipe { transform: none; transition: transform var(--wipe, 1800ms) var(--ease); }
+
+/* care-companion: after the drift line draws, the alert dot sends out a ring. */
+.pulse { opacity: 0; }
+.motion.played .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2s ease-out 1.8s infinite; }
+@keyframes pulse { from { transform: scale(1); opacity: 0.8; } to { transform: scale(3.2); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

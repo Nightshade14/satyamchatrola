@@ -1,0 +1,11 @@
+---
+// Art for the hiring box: a faint grid, like an empty oscilloscope screen.
+const columns = Array.from({ length: 28 }, (_, i) => i * 40);
+const rows = Array.from({ length: 10 }, (_, i) => i * 40);
+---
+<svg class="grid" viewBox="0 0 1100 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g stroke="currentColor" stroke-width="0.6" opacity="0.35">
+    {columns.map((x) => <line x1={x} y1="0" x2={x} y2="360" />)}
+    {rows.map((y) => <line x1="0" y1={y} x2="1100" y2={y} />)}
+  </g>
+</svg>
