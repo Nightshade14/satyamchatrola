@@ -288,6 +288,17 @@ footer { margin-top: var(--s-900); }
 [data-reveal].reveal-pending { opacity: 0; transform: translateY(32px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); transition-delay: var(--d, 0ms); }
 [data-reveal].reveal-pending.in { opacity: 1; transform: none; }
 
+/* ---------- drawing motion (only after the observer in Base.astro adds .motion) ---------- */
+/* Only transform and opacity animate. Loops pause while a drawing is off screen; .played starts one-shot motion once. */
+.motion:not(.playing) * { animation-play-state: paused !important; } /* beats each rule's animation shorthand */
+
+/* Hero GPU: the fans turn (convex blade edge first); tape falls one box per ticker step (900 ms). */
+.motion .fan { transform-box: fill-box; transform-origin: center; animation: spin 9s linear infinite; }
+.motion .fan.slow { animation-duration: 11s; }
+.motion .chute-tape { animation: fall 900ms var(--ease) infinite; }
+@keyframes spin { to { transform: rotate(-360deg); } }
+@keyframes fall { to { transform: translateY(50px); } }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .tagline .w { color: var(--ink); transition: none; }
