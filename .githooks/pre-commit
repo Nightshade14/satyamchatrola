@@ -1,0 +1,14 @@
+#!/bin/sh
+# Runs every check on this machine before a commit, so CI only needs to build and deploy.
+# Enable once per clone: git config core.hooksPath .githooks
+# Skip once (for example, offline): git commit --no-verify
+set -e
+
+echo "pre-commit: type check"
+npm run --silent typecheck
+
+echo "pre-commit: build and tests"
+npm run --silent check
+
+echo "pre-commit: dependency audit"
+npm audit --audit-level=high

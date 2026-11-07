@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import CtaClouds from '../components/art/CtaClouds.astro';
+import Ornament from '../components/art/Ornament.astro';
+
+const home = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`;
+---
+
+<Base title="Page not found · Satyam Chatrola" description="This page does not exist. Go back to Satyam Chatrola's portfolio." path="404.html">
+  <main id="main" tabindex="-1">
+    <section class="block">
+      <div class="shell">
+        <div class="final">
+          <CtaClouds />
+          <p class="caption-1">Error 404</p>
+          <h1 class="heading-3">This page is off the map</h1>
+          <p class="body-3">The link may be old, or the address may have a typo.</p>
+          <a class="btn button-md" href={home}>Back to the portfolio</a>
+        </div>
+      </div>
+    </section>
+    <Ornament />
+  </main>
+</Base>
