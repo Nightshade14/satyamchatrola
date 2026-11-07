@@ -24,6 +24,13 @@ test('the canonical and social URLs use the GitHub Pages project path', () => {
   assert.equal(attr(social ?? '', 'content'), 'https://nightshade14.github.io/satyamchatrola/');
 });
 
+test('the social preview image is published with the site', async () => {
+  const image = attr(tags.find(tag => attr(tag, 'property') === 'og:image') ?? '', 'content');
+  const prefix = 'https://nightshade14.github.io/satyamchatrola/';
+  assert.ok(image?.startsWith(prefix), `og:image ${image} is outside the site`);
+  assert.ok((await stat(new URL(`../dist/${image.slice(prefix.length)}`, import.meta.url))).isFile(), image);
+});
+
 test('local links, scripts and styles resolve inside the published artifact', async () => {
   const ids = new Set(tags.map(tag => attr(tag, 'id')).filter(Boolean));
   const urls = new Set(tags.flatMap(tag => [attr(tag, 'href'), attr(tag, 'src')]).filter(Boolean));

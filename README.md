@@ -35,13 +35,9 @@ Before publishing UI changes, check narrow phones (320px and 390px), tablet and 
 
 Copy and data live at the top of `src/pages/index.astro`: the `proof`, `stats`, `pillars`, `skills`, `highlights`, `featured`, `projects`, `articles`, and `socials` arrays. The latency claim is **71%**.
 
-Design tokens (colors, spacing, easing) and named text styles are in `src/styles/global.css`; font declarations are in `src/styles/fonts.css`. PDFs live under `public/pdf/`. `public/images/satyam-avatar.jpg` is a 112px crop of the headshot for the hero.
+Design tokens (colors, spacing, easing) and named text styles are in `src/styles/global.css`; font declarations are in `src/styles/fonts.css`. PDFs live under `public/pdf/`. `public/images/satyam-avatar.jpg` is the 112px portrait shown beside the name in the hero.
 
-`public/images/satyam_headshot.jpg` is the original image. To regenerate the optimized social image after changing it:
-
-```bash
-node --input-type=module -e 'import sharp from "sharp"; await sharp("public/images/satyam_headshot.jpg").rotate().resize({width:1200,height:1200,fit:"inside",withoutEnlargement:true}).jpeg({quality:82,mozjpeg:true}).toFile("public/images/satyam-social.jpg");'
-```
+`public/images/satyam-social-card.jpg` is the link preview image (`og:image`). It is a 1200 × 627 card with the hero headline, the three focus areas, and the engraved GPU drawing, with no photo. Update it when the headline changes.
 
 ## Deployment
 
