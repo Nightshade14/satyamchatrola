@@ -4,6 +4,7 @@ import test from 'node:test';
 
 const read = (file) => readFile(new URL(`../dist/${file}`, import.meta.url), 'utf8');
 const html = await read('index.html');
+const notFound = await read('404.html');
 const tags = [...html.matchAll(/<[^!][^>]*>/g)].map(([tag]) => tag);
 const attr = (tag, name) => tag.match(new RegExp(`\\b${name}="([^"]*)"`))?.[1];
 
@@ -37,9 +38,15 @@ test('local links, scripts and styles resolve inside the published artifact', as
   }
 });
 
-test('the page has no placeholder text, empty links, or third party scripts and styles', () => {
-  assert.ok(!html.includes('{{'), 'unfilled placeholder');
-  assert.ok(!html.includes('href="#"'), 'link with no target');
-  assert.doesNotMatch(html, /<script\b[^>]*\bsrc="https?:/, 'external script');
-  assert.doesNotMatch(html, /<link\b[^>]*\brel="stylesheet"[^>]*\bhref="https?:/, 'external stylesheet');
+test('pages have no placeholder text, empty links, or third party scripts and styles', () => {
+  for (const page of [html, notFound]) {
+    assert.ok(!page.includes('{{'), 'unfilled placeholder');
+    assert.ok(!page.includes('href="#"'), 'link with no target');
+    assert.doesNotMatch(page, /<script\b[^>]*\bsrc="https?:/, 'external script');
+    assert.doesNotMatch(page, /<link\b[^>]*\brel="stylesheet"[^>]*\bhref="https?:/, 'external stylesheet');
+  }
+});
+
+test('the 404 page links back to the portfolio', () => {
+  assert.match(notFound, /<a\b[^>]*href="\/satyamchatrola\/"/);
 });
