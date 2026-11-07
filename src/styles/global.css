@@ -321,6 +321,15 @@ footer { margin-top: var(--s-900); }
 @keyframes pick { 0%, 14% { transform: translateX(-72px); } 26%, 40% { transform: translateX(72px); } 52%, 100% { transform: none; } }
 @keyframes ship { 0%, 54% { opacity: 0; } 60%, 90% { opacity: 1; } 97%, 100% { opacity: 0; } }
 
+/* Clip rects with .wipe draw a line left to right once (care-companion drift, footer trace). */
+.motion .wipe { transform-box: fill-box; transform-origin: left center; transform: scaleX(0); }
+.motion.played .wipe { transform: none; transition: transform var(--wipe, 1800ms) var(--ease); }
+
+/* care-companion: after the drift line draws, the alert dot sends out a ring. */
+.pulse { opacity: 0; }
+.motion.played .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2s ease-out 1.8s infinite; }
+@keyframes pulse { from { transform: scale(1); opacity: 0.8; } to { transform: scale(3.2); opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .tagline .w { color: var(--ink); transition: none; }
