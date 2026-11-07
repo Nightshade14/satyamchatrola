@@ -1,12 +1,5 @@
 /* Only the Latin subsets used by this English-language portfolio are shipped. */
 @font-face {
-  font-family: 'Bricolage Grotesque Variable';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 200 800;
-  src: url('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2') format('woff2');
-}
-@font-face {
   font-family: 'Geist Variable';
   font-style: normal;
   font-display: swap;

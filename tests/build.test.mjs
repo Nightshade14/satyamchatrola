@@ -2,21 +2,18 @@ import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 import test from 'node:test';
 
-const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
+const read = (file) => readFile(new URL(`../dist/${file}`, import.meta.url), 'utf8');
+const html = await read('index.html');
 const tags = [...html.matchAll(/<[^!][^>]*>/g)].map(([tag]) => tag);
 const attr = (tag, name) => tag.match(new RegExp(`\\b${name}="([^"]*)"`))?.[1];
 
-test('the introduction is readable before JavaScript runs', () => {
-  const text = html.match(/<span\b[^>]*\bid="decode"[^>]*>([\s\S]*?)<\/span>/)?.[1];
-  assert.ok(text?.includes('AI Systems Engineer.'), 'the server-rendered introduction must not be empty');
+test('the headline is readable before JavaScript runs', () => {
+  assert.match(html, /<h1\b[^>]*>I make LLMs fast,<br>reliable, and measured\.<\/h1>/);
 });
 
-test('statistics contain their final values in the static page', () => {
-  const counters = [...html.matchAll(/<span\b([^>]*\bdata-count="[^"]+"[^>]*)>([^<]*)<\/span>/g)];
-  assert.equal(counters.length, 4);
-  for (const [, attrs, text] of counters) {
-    assert.equal(Number(text.replace(/[^\d.]/g, '')), Number(attr(attrs, 'data-count')));
-  }
+test('statistics show their final values in the static page', () => {
+  const values = [...html.matchAll(/<div class="num">([^<]*)<\/div>/g)].map(([, value]) => value);
+  assert.deepEqual(values, ['71%', '355 MB', '5M+', '+34%']);
 });
 
 test('the canonical and social URLs use the GitHub Pages project path', () => {
@@ -38,4 +35,11 @@ test('local links, scripts and styles resolve inside the published artifact', as
       assert.ok((await stat(new URL(`../dist/${relative}`, import.meta.url))).isFile(), url);
     }
   }
+});
+
+test('the page has no placeholder text, empty links, or third party scripts and styles', () => {
+  assert.ok(!html.includes('{{'), 'unfilled placeholder');
+  assert.ok(!html.includes('href="#"'), 'link with no target');
+  assert.doesNotMatch(html, /<script\b[^>]*\bsrc="https?:/, 'external script');
+  assert.doesNotMatch(html, /<link\b[^>]*\brel="stylesheet"[^>]*\bhref="https?:/, 'external stylesheet');
 });
