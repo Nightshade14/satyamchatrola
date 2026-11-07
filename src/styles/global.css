@@ -299,6 +299,13 @@ footer { margin-top: var(--s-900); }
 @keyframes spin { to { transform: rotate(-360deg); } }
 @keyframes fall { to { transform: translateY(50px); } }
 
+/* Inference: attention rows fill top to bottom, then the new k, v slot and the next token light up. 6 s loop. */
+.motion .cell { animation: fill 6s var(--ease) infinite backwards; animation-delay: calc(var(--i) * 350ms); }
+.motion .kv-new { animation: fill 6s var(--ease) 2100ms infinite backwards; }
+.motion .next-token { animation: blip 6s var(--ease) 2500ms infinite backwards; }
+@keyframes fill { 0% { opacity: 0; } 6%, 70% { opacity: 1; } 82%, 100% { opacity: 0; } }
+@keyframes blip { 0% { opacity: 0.25; } 6%, 70% { opacity: 1; } 82%, 100% { opacity: 0.25; } }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .tagline .w { color: var(--ink); transition: none; }
