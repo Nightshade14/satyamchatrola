@@ -228,10 +228,11 @@ a.card:active { transform: scale(0.98); }
 
 /* projects */
 /* The featured project fills the first row; the six other cards fill two rows of three. */
+/* Its wide drawing takes the larger column, so the labels stay readable at a glance. */
 .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-200); }
-.projects .feature { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 200px; gap: var(--s-300); }
+.projects .feature { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); align-items: center; gap: var(--s-300); }
 .feature .proj-body { display: flex; flex-direction: column; }
-.feature .vignette { border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--blue); overflow: hidden; }
+.feature .vignette { aspect-ratio: 400 / 112; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--blue); overflow: hidden; }
 .feature .vignette svg { width: 100%; height: 100%; display: block; }
 .feature .vignette text { font-family: var(--mono); }
 .proj { display: flex; flex-direction: column; min-height: 240px; }
