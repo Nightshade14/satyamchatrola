@@ -315,6 +315,12 @@ footer { margin-top: var(--s-900); }
 @keyframes shed { 40% { opacity: 0.35; } }
 @keyframes lever { 0%, 45% { transform: rotate(43deg); } 55%, 100% { transform: rotate(0deg); } }
 
+/* Evals: the selection frame compares model a, then c, settles on b, and "ships" lights up. 7 s loop. */
+.motion .pick { animation: pick 7s var(--ease) infinite; }
+.motion .ship { animation: ship 7s var(--ease) infinite backwards; }
+@keyframes pick { 0%, 14% { transform: translateX(-72px); } 26%, 40% { transform: translateX(72px); } 52%, 100% { transform: none; } }
+@keyframes ship { 0%, 54% { opacity: 0; } 60%, 90% { opacity: 1; } 97%, 100% { opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .tagline .w { color: var(--ink); transition: none; }
